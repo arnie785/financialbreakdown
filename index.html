@@ -390,76 +390,19 @@ body::before {
 </div><!-- /page -->
 
 <script>
-// ═══════════════ DATA ═══════════════
+// ═══════════════ CONFIG ═══════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXixwdie8g5N3bugTrDTU-7dqbc_Dx08ih_O1wyhKhTRLSgdp2abMWzczFyKfL7DyI/exec';
+
+// ═══════════════ GLOBALS ═══════════════
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fmt = v => '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtN = v => Math.round(v).toLocaleString('en-US');
 
-const plData = {
-  rev: [
-    {l:'Chase Deposit — Pay Period 1', v:[162429.14,127385.50,67942.97,105043.00,100150.80,0,0,0,0,0,0,0]},
-    {l:'Chase Deposit — Pay Period 2', v:[196480.02,106150.92,144502.53,135852.28,130369.33,0,0,0,0,0,0,0]},
-    {l:'Chase Deposit — Pay Period 3', v:[0,0,0,0,75914.26,0,0,0,0,0,0,0]},
-    {l:'Other Income',                 v:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  ],
-  agent: [
-    {l:'Agent Payouts — PP1', v:[98880.10,74000.60,29650.07,65857.46,51850.94,0,0,0,0,0,0,0]},
-    {l:'Agent Payouts — PP2', v:[123326.25,73070.43,82756.78,75503.74,82025.91,0,0,0,0,0,0,0]},
-    {l:'Agent Payouts — PP3', v:[0,0,0,0,28617.00,0,0,0,0,0,0,0]},
-    {l:'Rev-Share 1',         v:[25510.35,11867.95,3256.36,3780.82,0,0,0,0,0,0,0,0]},
-    {l:'Rev-Share 2',         v:[17739.11,6010.00,10762.91,17369.60,0,0,0,0,0,0,0,0]},
-  ],
-  ops: [
-    {l:'Software',          v:[11060.08,13838.42,17044.64,21633.98,19508.82,0,0,0,0,0,0,0]},
-    {l:'Marketing',         v:[1057.91,2393.37,1772.82,10051.26,20677.18,0,0,0,0,0,0,0]},
-    {l:'Lead Source',       v:[4430.00,2360.00,6300.00,11756.49,18015.00,0,0,0,0,0,0,0]},
-    {l:'Recruitment',       v:[318.73,1037.73,2424.27,5119.42,4995.31,0,0,0,0,0,0,0]},
-    {l:'BBB / Licensing',   v:[2285.82,1346.15,4311.22,1074.03,1645.63,0,0,0,0,0,0,0]},
-    {l:'Back Office',       v:[2287.26,1330.70,2635.78,2943.10,7079.62,0,0,0,0,0,0,0]},
-    {l:'Admin / VA Payout', v:[6179.29,7505.41,7117.65,7832.66,10981.53,0,0,0,0,0,0,0]},
-    {l:'Other',             v:[8365.00,11260.90,100.00,325.89,2699.36,0,0,0,0,0,0,0]},
-    {l:'Bonuses (Staff)',   v:[6473.62,8719.91,440.00,19286.59,1872.71,0,0,0,0,0,0,0]},
-    {l:'Bonuses (Agents)',  v:[5547.90,4554.00,5582.00,5000.00,3040.35,0,0,0,0,0,0,0]},
-  ]
-};
-
-const cppAgents = [
-  {name:'Ashley',    v:[85.53,130.21,11.95,null,null]},
-  {name:'Christy',   v:[608.90,885.41,737.17,861.95,720.58]},
-  {name:'Dakota',    v:[1283.93,1700.41,736.00,1183.19,1311.78]},
-  {name:'Lore',      v:[1187.80,1754.25,1110.37,849.85,1005.65]},
-  {name:'Ny',        v:[593.49,594.78,180.63,421.46,96.87]},
-  {name:'Mitchell',  v:[100.68,59.59,null,null,null]},
-  {name:'Sharon',    v:[134.17,451.99,null,null,null]},
-  {name:'Jennifer',  v:[244.51,null,null,null,null]},
-  {name:'James',     v:[136.82,147.28,102.12,114.43,null]},
-  {name:'Celamarie', v:[207.26,null,null,null,null]},
-  {name:'Victor',    v:[451.61,null,null,null,null]},
-  {name:'Cody',      v:[196.06,null,186.43,null,null]},
-  {name:'Tonya',     v:[231.09,47.25,92.83,20.67,42.64]},
-  {name:'Hannah',    v:[162.33,145.00,109.34,352.14,null]},
-  {name:'Caleb',     v:[null,null,null,128.90,838.82]},
-  {name:'Michelle',  v:[null,null,null,null,183.14]},
-  {name:'Misty',     v:[null,null,null,null,6.98]},
-  {name:'Verson',    v:[null,null,null,null,62.76]},
-  {name:'Sharise',   v:[null,null,null,null,64.34]},
-];
-
-const totalExp = [295722.31,128347.19,77378.45,150880.88,253009.36,0,0,0,0,0,0,0];
-const ytdExp = totalExp.reduce((a,b)=>a+b,0);
-
-const cpcAgents = [
-  {name:'Christy', c:[142,495,544,665,262,null,null,null,null,null,null,null]},
-  {name:'Dakota',  c:[764,649,2388,696,811,null,null,null,null,null,null,null]},
-  {name:'Lore',    c:[1272,1128,825,1551,1026,null,null,null,null,null,null,null]},
-  {name:'Ny',      c:[346,295,334,281,180,null,null,null,null,null,null,null]},
-  {name:'Tonya',   c:[171,285,327,384,363,null,null,null,null,null,null,null]},
-  {name:'Caleb',   c:[null,null,189,63,48,null,null,null,null,null,null,null]},
-  {name:'Michelle',c:[null,null,1,21,74,null,null,null,null,null,null,null]},
-  {name:'Misty',   c:[null,null,1,18,107,null,null,null,null,null,null,null]},
-  {name:'Verson',  c:[null,null,2,57,91,null,null,null,null,null,null,null]},
-  {name:'Kathleen',c:[null,null,6,10,50,null,null,null,null,null,null,null]},
-];
+let plData = { rev:[], agent:[], ops:[] };
+let cppAgents = [];
+let totalExp = Array(12).fill(0);
+let ytdExp = 0;
+let cpcAgents = [];
 
 // ═══════════════ STATE ═══════════════
 let plMonth = 'ytd', cppMonth = 'ytd', cpcMonth = 'ytd';
@@ -670,8 +613,99 @@ function renderCPC(){
     <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value">${fmt(exp)}</div><div class="i-desc">${isYtd?'Jan–May YTD':MONTHS[m]+' 2026'} · ${active.length} agents</div></div>`;
 }
 
-// ═══════════════ INIT ═══════════════
-renderPL(); renderCPP(); renderCPC();
+// ═══════════════ INIT — FETCH FROM GOOGLE SHEETS ═══════════════
+function showLoading(msg) {
+  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
+    const sec = document.getElementById(id);
+    if(sec) sec.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
+      <div style="font-size:28px;margin-bottom:12px">⏳</div>
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">${msg}</div>
+    </div>`;
+  });
+}
+
+function showError(msg) {
+  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
+    const sec = document.getElementById(id);
+    if(sec) sec.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
+      <div style="font-size:28px;margin-bottom:12px">⚠️</div>
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--red)">${msg}</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:8px">Check Apps Script deployment & permissions</div>
+    </div>`;
+  });
+}
+
+function parseNum(val) {
+  if (val === '' || val === null || val === undefined || val === '-') return null;
+  if (typeof val === 'number') return val;
+  const str = String(val);
+  const cleaned = str.replace(/[$,\s]/g, '');
+  if (str.includes('(') || str.startsWith('-')) return -(Math.abs(parseFloat(cleaned.replace(/[()]/g,''))) || 0);
+  return parseFloat(cleaned) || null;
+}
+
+async function loadData() {
+  showLoading('Loading data from Google Sheets...');
+  try {
+    const res = await fetch(SCRIPT_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+
+    // ── P&L ──
+    if (raw.pl) {
+      plData.rev   = raw.pl.rev   || [];
+      plData.agent = raw.pl.agent || [];
+      plData.ops   = raw.pl.ops   || [];
+      totalExp     = (raw.pl.totalExp || Array(12).fill(0)).map(v => parseNum(v) || 0);
+      ytdExp       = totalExp.reduce((a,b)=>a+b,0);
+    }
+
+    // ── Cost per Policy (Agent Deals Close) ──
+    if (raw.cpp) {
+      cppAgents = raw.cpp.map(a => ({
+        name: a.name,
+        v: (a.vals || []).slice(0,12).map(v => parseNum(v))
+      }));
+    }
+
+    // ── Cost per Contact (Agent Assigned Contacts) ──
+    if (raw.cpc) {
+      cpcAgents = raw.cpc.map(a => ({
+        name: a.name,
+        c: (a.vals || []).slice(0,12).map(v => {
+          const n = parseNum(v);
+          return (n !== null && n > 0) ? n : null;
+        })
+      }));
+    }
+
+    // restore section HTML from template
+    restoreSections();
+    renderPL(); renderCPP(); renderCPC();
+
+  } catch(err) {
+    console.error(err);
+    showError('Failed to load data: ' + err.message);
+  }
+}
+
+// ── store original section HTML before loading wipes it ──
+const sectionTemplates = {};
+function storeSectionTemplates() {
+  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
+    sectionTemplates[id] = document.getElementById(id).innerHTML;
+  });
+}
+function restoreSections() {
+  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
+    if(sectionTemplates[id]) document.getElementById(id).innerHTML = sectionTemplates[id];
+  });
+}
+
+// store templates then fetch
+storeSectionTemplates();
+loadData();
+
 </script>
 </body>
 </html>
