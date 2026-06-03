@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TBB — All Hands Financial Dashboard 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #F0D080;
+  --gold-dim: #8B6E2A;
+  --dark: #080810;
+  --dark2: #0E0E1C;
+  --dark3: #14142A;
+  --dark4: #1A1A35;
+  --dark5: #202040;
+  --border: rgba(201,168,76,0.2);
+  --border-bright: rgba(201,168,76,0.6);
+  --text: #E8E8F0;
+  --text-dim: #888899;
+  --text-faint: #444460;
+  --green: #3DBA6A;
+  --green-bg: rgba(61,186,106,0.1);
+  --red: #FF5A5A;
+  --red-bg: rgba(255,90,90,0.1);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── noise overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; }
+
+/* ── header ── */
+.site-header {
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.logo-area { display: flex; align-items: center; gap: 14px; }
+.logo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 20px rgba(201,168,76,0.3);
+}
+.logo-text h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  line-height: 1;
+}
+.logo-text p { font-size: 12px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.05em; }
+.header-badge {
+  background: var(--dark4);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+/* ── nav tabs ── */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+.nav-tab {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.nav-tab:hover:not(.active) { color: var(--gold); background: rgba(201,168,76,0.05); }
+.nav-tab.active { background: var(--gold); color: var(--dark); font-weight: 700; }
+
+/* ── section ── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── month bar ── */
+.month-bar {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.m-btn {
+  padding: 6px 12px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--dark3);
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.04em;
+}
+.m-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.m-btn.active { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 700; }
+.m-btn.ytd-btn { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ── kpi grid ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card {
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gold);
+  opacity: 0.4;
+}
+.kpi-card:hover { border-color: var(--border-bright); }
+.kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 10px; }
+.kpi-value { font-family: var(--font-mono); font-size: 18px; font-weight: 500; line-height: 1; }
+.kpi-value.green { color: var(--green); }
+.kpi-value.red { color: var(--red); }
+.kpi-value.gold { color: var(--gold); }
+.kpi-value.white { color: var(--text); }
+.kpi-sub { font-size: 11px; color: var(--text-faint); margin-top: 6px; }
+
+/* ── grid ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-full { margin-bottom: 16px; }
+
+/* ── card ── */
+.card {
+  background: var(--dark3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-head {
+  background: linear-gradient(90deg, var(--gold) 0%, #A87828 100%);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-head h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); }
+.card-head .head-total { margin-left: auto; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--dark); }
+
+/* ── table ── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); padding: 8px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.data-table th.r { text-align: right; }
+.data-table td { font-size: 12px; padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-dim); vertical-align: middle; }
+.data-table td.r { text-align: right; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-right: 6px; }
+.rk1 { background: var(--gold); color: var(--dark); }
+.rk2 { background: #888; color: #fff; }
+.rk3 { background: #6B3A1F; color: #ddd; }
+.rk4 { background: var(--dark5); color: var(--text-dim); }
+
+/* ── pill ── */
+.pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
+.pill-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(61,186,106,0.3); }
+.pill-gold { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(255,90,90,0.3); }
+
+/* ── bars ── */
+.bar-section { padding: 12px 16px; }
+.bar-item { margin-bottom: 10px; }
+.bar-item:last-child { margin-bottom: 0; }
+.bar-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+.bar-meta .bl { color: var(--text-dim); }
+.bar-meta .bv { color: var(--text); font-family: var(--font-mono); font-weight: 500; }
+.bar-track { background: var(--dark5); border-radius: 3px; height: 5px; overflow: hidden; }
+.bar-fill { height: 5px; border-radius: 3px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+
+/* ── insight grid ── */
+.insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px; }
+.insight-card {
+  background: var(--dark4);
+  border-radius: 10px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--gold-dim);
+  transition: border-color 0.2s;
+}
+.insight-card:hover { border-left-color: var(--gold); }
+.insight-card .i-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 5px; }
+.insight-card .i-value { font-size: 14px; font-weight: 600; color: var(--gold); font-family: var(--font-mono); }
+.insight-card .i-desc { font-size: 10px; color: var(--text-faint); margin-top: 4px; line-height: 1.4; }
+
+/* ── net bar ── */
+.net-bar {
+  background: linear-gradient(90deg, var(--dark2), var(--dark4));
+  border: 1px solid var(--border-bright);
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.net-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at right center, rgba(201,168,76,0.06), transparent 60%);
+  pointer-events: none;
+}
+.net-label { font-family: var(--font-display); font-size: 14px; letter-spacing: 2px; color: var(--gold); }
+.net-sub { font-size: 11px; color: var(--text-faint); margin-top: 3px; }
+.net-amount { font-family: var(--font-mono); font-size: 28px; font-weight: 500; text-align: right; }
+.net-margin { font-size: 11px; color: var(--text-dim); margin-top: 3px; text-align: right; font-family: var(--font-mono); }
+
+/* ── note ── */
+.table-note { font-size: 10px; color: var(--text-faint); font-style: italic; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.04); }
+
+/* ── gold divider ── */
+.gold-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px 0; opacity: 0.4; }
+
+/* ── responsive ── */
+@media(max-width: 768px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .insight-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-tab { font-size: 11px; padding: 8px 10px; }
+}
+@media(max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .insight-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="logo-area">
+      <div class="logo-icon">💰</div>
+      <div class="logo-text">
+        <h1>BUILD BETTER BENEFITS</h1>
+        <p>ALL HANDS FINANCIAL DASHBOARD · FISCAL YEAR 2026</p>
+      </div>
+    </div>
+    <div class="header-badge" id="main-period-badge">YTD JAN–MAY 2026</div>
+  </header>
+
+  <!-- Nav Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showSection('pl')">📊 P&L Summary</button>
+    <button class="nav-tab" onclick="showSection('cpp')">🎯 Cost per Policy</button>
+    <button class="nav-tab" onclick="showSection('cpc')">📇 Cost per Contact</button>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       SECTION 1 — P&L SUMMARY
+  ════════════════════════════════════════ -->
+  <section class="section active" id="sec-pl">
+    <div class="month-bar" id="pl-months"></div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value green" id="pl-k-rev">—</div><div class="kpi-sub" id="pl-k-rev-sub">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value red" id="pl-k-exp">—</div><div class="kpi-sub" id="pl-k-exp-sub">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Net Profit / Loss</div><div class="kpi-value gold" id="pl-k-net">—</div><div class="kpi-sub" id="pl-k-margin">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Agent Payouts</div><div class="kpi-value white" id="pl-k-agent">—</div><div class="kpi-sub" id="pl-k-agent-sub">—</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Monthly P&L</h3><span class="head-total" id="pl-tbl-title">Jan–May 2026</span></div>
+        <table class="data-table"><thead><tr><th>Period</th><th class="r">Revenue</th><th class="r">Expenses</th><th class="r">Net</th></tr></thead><tbody id="pl-tbody"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Expense Breakdown</h3></div>
+        <div class="bar-section" id="pl-bars"></div>
+      </div>
+    </div>
+    <div class="grid-full">
+      <div class="card">
+        <div class="card-head"><h3>Executive Insights</h3></div>
+        <div class="insight-grid" id="pl-insights"></div>
+      </div>
+    </div>
+    <div class="net-bar">
+      <div><div class="net-label">NET PROFIT / LOSS</div><div class="net-sub" id="pl-net-period">January – May 2026 · Build Better Benefits Inc.</div></div>
+      <div><div class="net-amount" id="pl-net-big">—</div><div class="net-margin" id="pl-net-margin-lbl">—</div></div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       SECTION 2 — COST PER POLICY
+  ════════════════════════════════════════ -->
+  <section class="section" id="sec-cpp">
+    <div class="month-bar" id="cpp-months"></div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Lowest Cost/Policy</div><div class="kpi-value green" id="cpp-k-low">—</div><div class="kpi-sub" id="cpp-k-low-name">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Highest Cost/Policy</div><div class="kpi-value red" id="cpp-k-high">—</div><div class="kpi-sub" id="cpp-k-high-name">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpp-k-avg">—</div><div class="kpi-sub" id="cpp-k-avg-sub">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Active Agents</div><div class="kpi-value white" id="cpp-k-count">—</div><div class="kpi-sub" id="cpp-k-count-sub">—</div></div>
+    </div>
+    <div class="grid-full">
+      <div class="card">
+        <div class="card-head"><h3>Agent Ranking — Cost per Policy</h3></div>
+        <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r">Cost / Policy</th><th class="r">Efficiency</th></tr></thead><tbody id="cpp-tbody"></tbody></table>
+        <div class="table-note">Formula: Combined monthly payout ÷ deals closed. Lower = more cost-efficient agent.</div>
+      </div>
+    </div>
+    <div class="grid-full">
+      <div class="card">
+        <div class="card-head"><h3>Insights</h3></div>
+        <div class="insight-grid" id="cpp-insights"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════
+       SECTION 3 — COST PER CONTACT
+  ════════════════════════════════════════ -->
+  <section class="section" id="sec-cpc">
+    <div class="month-bar" id="cpc-months"></div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Lowest Cost/Contact</div><div class="kpi-value green" id="cpc-k-low">—</div><div class="kpi-sub" id="cpc-k-low-name">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Highest Cost/Contact</div><div class="kpi-value red" id="cpc-k-high">—</div><div class="kpi-sub" id="cpc-k-high-name">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpc-k-avg">—</div><div class="kpi-sub" id="cpc-k-avg-sub">—</div></div>
+      <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value white" id="cpc-k-exp">—</div><div class="kpi-sub" id="cpc-k-exp-sub">—</div></div>
+    </div>
+    <div class="grid-full">
+      <div class="card">
+        <div class="card-head"><h3>Agent Ranking — Cost per Contact</h3></div>
+        <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r">Contacts Assigned</th><th class="r">Total Expenses</th><th class="r">Cost / Contact</th><th class="r">Efficiency</th></tr></thead><tbody id="cpc-tbody"></tbody></table>
+        <div class="table-note" id="cpc-note">Formula: Monthly Total Expenses ÷ Contacts Assigned (GHL created date)</div>
+      </div>
+    </div>
+    <div class="grid-full">
+      <div class="card">
+        <div class="card-head"><h3>Insights</h3></div>
+        <div class="insight-grid" id="cpc-insights"></div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<script>
+// ═══════════════ DATA ═══════════════
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt = v => '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN = v => Math.round(v).toLocaleString('en-US');
+
+const plData = {
+  rev: [
+    {l:'Chase Deposit — Pay Period 1', v:[162429.14,127385.50,67942.97,105043.00,100150.80,0,0,0,0,0,0,0]},
+    {l:'Chase Deposit — Pay Period 2', v:[196480.02,106150.92,144502.53,135852.28,130369.33,0,0,0,0,0,0,0]},
+    {l:'Chase Deposit — Pay Period 3', v:[0,0,0,0,75914.26,0,0,0,0,0,0,0]},
+    {l:'Other Income',                 v:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  ],
+  agent: [
+    {l:'Agent Payouts — PP1', v:[98880.10,74000.60,29650.07,65857.46,51850.94,0,0,0,0,0,0,0]},
+    {l:'Agent Payouts — PP2', v:[123326.25,73070.43,82756.78,75503.74,82025.91,0,0,0,0,0,0,0]},
+    {l:'Agent Payouts — PP3', v:[0,0,0,0,28617.00,0,0,0,0,0,0,0]},
+    {l:'Rev-Share 1',         v:[25510.35,11867.95,3256.36,3780.82,0,0,0,0,0,0,0,0]},
+    {l:'Rev-Share 2',         v:[17739.11,6010.00,10762.91,17369.60,0,0,0,0,0,0,0,0]},
+  ],
+  ops: [
+    {l:'Software',          v:[11060.08,13838.42,17044.64,21633.98,19508.82,0,0,0,0,0,0,0]},
+    {l:'Marketing',         v:[1057.91,2393.37,1772.82,10051.26,20677.18,0,0,0,0,0,0,0]},
+    {l:'Lead Source',       v:[4430.00,2360.00,6300.00,11756.49,18015.00,0,0,0,0,0,0,0]},
+    {l:'Recruitment',       v:[318.73,1037.73,2424.27,5119.42,4995.31,0,0,0,0,0,0,0]},
+    {l:'BBB / Licensing',   v:[2285.82,1346.15,4311.22,1074.03,1645.63,0,0,0,0,0,0,0]},
+    {l:'Back Office',       v:[2287.26,1330.70,2635.78,2943.10,7079.62,0,0,0,0,0,0,0]},
+    {l:'Admin / VA Payout', v:[6179.29,7505.41,7117.65,7832.66,10981.53,0,0,0,0,0,0,0]},
+    {l:'Other',             v:[8365.00,11260.90,100.00,325.89,2699.36,0,0,0,0,0,0,0]},
+    {l:'Bonuses (Staff)',   v:[6473.62,8719.91,440.00,19286.59,1872.71,0,0,0,0,0,0,0]},
+    {l:'Bonuses (Agents)',  v:[5547.90,4554.00,5582.00,5000.00,3040.35,0,0,0,0,0,0,0]},
+  ]
+};
+
+const cppAgents = [
+  {name:'Ashley',    v:[85.53,130.21,11.95,null,null]},
+  {name:'Christy',   v:[608.90,885.41,737.17,861.95,720.58]},
+  {name:'Dakota',    v:[1283.93,1700.41,736.00,1183.19,1311.78]},
+  {name:'Lore',      v:[1187.80,1754.25,1110.37,849.85,1005.65]},
+  {name:'Ny',        v:[593.49,594.78,180.63,421.46,96.87]},
+  {name:'Mitchell',  v:[100.68,59.59,null,null,null]},
+  {name:'Sharon',    v:[134.17,451.99,null,null,null]},
+  {name:'Jennifer',  v:[244.51,null,null,null,null]},
+  {name:'James',     v:[136.82,147.28,102.12,114.43,null]},
+  {name:'Celamarie', v:[207.26,null,null,null,null]},
+  {name:'Victor',    v:[451.61,null,null,null,null]},
+  {name:'Cody',      v:[196.06,null,186.43,null,null]},
+  {name:'Tonya',     v:[231.09,47.25,92.83,20.67,42.64]},
+  {name:'Hannah',    v:[162.33,145.00,109.34,352.14,null]},
+  {name:'Caleb',     v:[null,null,null,128.90,838.82]},
+  {name:'Michelle',  v:[null,null,null,null,183.14]},
+  {name:'Misty',     v:[null,null,null,null,6.98]},
+  {name:'Verson',    v:[null,null,null,null,62.76]},
+  {name:'Sharise',   v:[null,null,null,null,64.34]},
+];
+
+const totalExp = [295722.31,128347.19,77378.45,150880.88,253009.36,0,0,0,0,0,0,0];
+const ytdExp = totalExp.reduce((a,b)=>a+b,0);
+
+const cpcAgents = [
+  {name:'Christy', c:[142,495,544,665,262,null,null,null,null,null,null,null]},
+  {name:'Dakota',  c:[764,649,2388,696,811,null,null,null,null,null,null,null]},
+  {name:'Lore',    c:[1272,1128,825,1551,1026,null,null,null,null,null,null,null]},
+  {name:'Ny',      c:[346,295,334,281,180,null,null,null,null,null,null,null]},
+  {name:'Tonya',   c:[171,285,327,384,363,null,null,null,null,null,null,null]},
+  {name:'Caleb',   c:[null,null,189,63,48,null,null,null,null,null,null,null]},
+  {name:'Michelle',c:[null,null,1,21,74,null,null,null,null,null,null,null]},
+  {name:'Misty',   c:[null,null,1,18,107,null,null,null,null,null,null,null]},
+  {name:'Verson',  c:[null,null,2,57,91,null,null,null,null,null,null,null]},
+  {name:'Kathleen',c:[null,null,6,10,50,null,null,null,null,null,null,null]},
+];
+
+// ═══════════════ STATE ═══════════════
+let plMonth = 'ytd', cppMonth = 'ytd', cpcMonth = 'ytd';
+
+// ═══════════════ HELPERS ═══════════════
+function sumArr(arr, m) { return m==='ytd'?arr.reduce((a,b)=>a+(b||0),0):(arr[m]||0); }
+function sumGroup(group, m) { return group.reduce((a,r)=>a+sumArr(r.v,m),0); }
+function pill(v, avg) {
+  if(v===null)return '';
+  if(v<=avg*0.75)return '<span class="pill pill-green">Efficient</span>';
+  if(v<=avg*1.25)return '<span class="pill pill-gold">Average</span>';
+  return '<span class="pill pill-red">High Cost</span>';
+}
+function rankClass(i){ return ['rk1','rk2','rk3','rk4'][Math.min(i,3)]; }
+function colorVal(v, avg){ return v<=avg?'var(--green)':v<=avg*1.25?'var(--gold)':'var(--red)'; }
+
+function buildMonthBar(containerId, state, callback) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = MONTHS.map((m,i)=>`<button class="m-btn${state===i?' active':''}" onclick="${callback}(${i})">${m}</button>`).join('')
+    +`<button class="m-btn ytd-btn${state==='ytd'?' active':''}" onclick="${callback}('ytd')">YTD</button>`;
+}
+
+// ═══════════════ NAV ═══════════════
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ═══════════════ P&L ═══════════════
+function setPLMonth(m){ plMonth=m; renderPL(); }
+function renderPL(){
+  const m=plMonth; const isYtd=m==='ytd';
+  buildMonthBar('pl-months','ytd'===m?'ytd':m,'setPLMonth');
+  // recalc active buttons
+  document.querySelectorAll('#pl-months .m-btn').forEach((btn,i)=>{
+    btn.classList.toggle('active', isYtd?btn.classList.contains('ytd-btn'):i===m);
+  });
+  const period = isYtd?'YTD Jan–May 2026':MONTHS[m]+' 2026';
+  document.getElementById('main-period-badge').textContent = period.toUpperCase();
+  document.getElementById('pl-net-period').textContent = (isYtd?'January – May 2026':MONTHS[m]+' 2026')+' · Build Better Benefits Inc.';
+
+  const totalRev = sumGroup(plData.rev,m);
+  const totalAgent = sumGroup(plData.agent,m);
+  const totalOps = sumGroup(plData.ops,m);
+  const totalExpenses = totalAgent+totalOps;
+  const net = totalRev-totalExpenses;
+  const margin = totalRev>0?((net/totalRev)*100).toFixed(1):'0';
+
+  document.getElementById('pl-k-rev').textContent=fmt(totalRev);
+  document.getElementById('pl-k-rev-sub').textContent=isYtd?'5-month total':MONTHS[m]+' deposits';
+  document.getElementById('pl-k-exp').textContent=fmt(totalExpenses);
+  document.getElementById('pl-k-exp-sub').textContent='All categories';
+  document.getElementById('pl-k-net').textContent=(net<0?'-':'')+fmt(net);
+  document.getElementById('pl-k-net').className='kpi-value '+(net>=0?'gold':'red');
+  document.getElementById('pl-k-margin').textContent=margin+'% net margin';
+  document.getElementById('pl-k-agent').textContent=fmt(totalAgent);
+  document.getElementById('pl-k-agent-sub').textContent=totalRev>0?((totalAgent/totalExpenses)*100).toFixed(1)+'% of expenses':'—';
+
+  // table
+  document.getElementById('pl-tbl-title').textContent=isYtd?'Jan–May 2026':MONTHS[m]+' Detail';
+  const tbody=document.getElementById('pl-tbody');
+  if(isYtd){
+    const rows=[0,1,2,3,4].map(i=>{
+      const r=sumGroup(plData.rev,i),e=sumGroup(plData.agent,i)+sumGroup(plData.ops,i),n=r-e;
+      return `<tr><td><span class="rank-badge ${rankClass(i)}">${i+1}</span>${MONTHS[i]}</td><td class="r" style="color:var(--green);font-family:var(--font-mono)">${fmt(r)}</td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(e)}</td><td class="r" style="color:${n>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-weight:600">${(n<0?'-':'')+fmt(n)}</td></tr>`;
+    });
+    tbody.innerHTML=rows.join('');
+  } else {
+    const ops=plData.ops.map(o=>({l:o.l,v:o.v[m]||0})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+    tbody.innerHTML=ops.map(o=>`<tr><td colspan="2" style="color:var(--text-dim)">${o.l}</td><td class="r"></td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(o.v)}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+  }
+
+  // bars
+  const opsVals=plData.ops.map(o=>({l:o.l,v:sumArr(o.v,m)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  const maxB=opsVals[0]?.v||1;
+  document.getElementById('pl-bars').innerHTML=opsVals.map(o=>`
+    <div class="bar-item">
+      <div class="bar-meta"><span class="bl">${o.l}</span><span class="bv">${fmt(o.v)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(o.v/maxB*100)}%;background:var(--red)"></div></div>
+    </div>`).join('')||'<p style="color:var(--text-faint);font-size:11px">No data</p>';
+
+  // insights
+  const bestNetM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n>b.n?{i,n}:b},{i:0,n:-Infinity});
+  const bestRevM=[0,1,2,3,4].reduce((b,i)=>{const r=sumGroup(plData.rev,i);return r>b.r?{i,r}:b},{i:0,r:-Infinity});
+  const worstM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n<b.n?{i,n}:b},{i:0,n:Infinity});
+  const topOps=opsVals[0]||{l:'—',v:0};
+  const prevM=!isYtd&&m>0?m-1:null;
+  const prevRev=prevM!==null?sumGroup(plData.rev,prevM):null;
+  const revChg=prevRev&&prevRev>0?((totalRev-prevRev)/prevRev*100).toFixed(1):null;
+
+  let ins='';
+  if(isYtd){
+    ins=`
+      <div class="insight-card"><div class="i-label">Best Net Month</div><div class="i-value">${MONTHS[bestNetM.i]}</div><div class="i-desc">${fmt(bestNetM.n)} net profit</div></div>
+      <div class="insight-card"><div class="i-label">Highest Revenue</div><div class="i-value">${MONTHS[bestRevM.i]}</div><div class="i-desc">${fmt(bestRevM.r)} deposits</div></div>
+      <div class="insight-card"><div class="i-label">Watch This Month</div><div class="i-value" style="color:var(--red)">${MONTHS[worstM.i]}</div><div class="i-desc">Lowest net at ${fmt(worstM.n)}</div></div>
+      <div class="insight-card"><div class="i-label">YTD Net Margin</div><div class="i-value">${margin}%</div><div class="i-desc">${fmt(net)} on ${fmt(totalRev)}</div></div>
+      <div class="insight-card"><div class="i-label">Top Ops Expense</div><div class="i-value">${topOps.l}</div><div class="i-desc">${fmt(topOps.v)} YTD</div></div>
+      <div class="insight-card"><div class="i-label">Agent Cost Ratio</div><div class="i-value">${totalExpenses>0?((totalAgent/totalExpenses)*100).toFixed(1)+'%':'—'}</div><div class="i-desc">Of total expenses</div></div>`;
+  } else {
+    ins=`
+      <div class="insight-card"><div class="i-label">Revenue</div><div class="i-value" style="color:var(--green)">${fmt(totalRev)}</div><div class="i-desc">${revChg!==null?(parseFloat(revChg)>=0?'▲ +':'▼ ')+revChg+'% vs '+MONTHS[prevM]:'—'}</div></div>
+      <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value" style="color:var(--red)">${fmt(totalExpenses)}</div><div class="i-desc">${isYtd?'YTD':MONTHS[m]+' 2026'}</div></div>
+      <div class="insight-card"><div class="i-label">Net Profit</div><div class="i-value" style="color:${net>=0?'var(--green)':'var(--red)'}">${fmt(net)}</div><div class="i-desc">${margin}% margin</div></div>
+      <div class="insight-card"><div class="i-label">Top Expense</div><div class="i-value">${topOps.l||'—'}</div><div class="i-desc">${topOps.v?fmt(topOps.v):'—'}</div></div>
+      <div class="insight-card"><div class="i-label">Agent Payouts</div><div class="i-value">${fmt(totalAgent)}</div><div class="i-desc">${totalExpenses>0?((totalAgent/totalExpenses)*100).toFixed(1)+'% of expenses':'—'}</div></div>
+      <div class="insight-card"><div class="i-label">Ops Expenses</div><div class="i-value">${fmt(totalOps)}</div><div class="i-desc">${totalExpenses>0?((totalOps/totalExpenses)*100).toFixed(1)+'% of expenses':'—'}</div></div>`;
+  }
+  document.getElementById('pl-insights').innerHTML=ins;
+
+  const netEl=document.getElementById('pl-net-big');
+  netEl.textContent=(net<0?'-':'')+fmt(net);
+  netEl.style.color=net>=0?'var(--green)':'var(--red)';
+  document.getElementById('pl-net-margin-lbl').textContent='Net Margin: '+margin+'% · Revenue: '+fmt(totalRev);
+}
+
+// ═══════════════ COST PER POLICY ═══════════════
+function setCPPMonth(m){ cppMonth=m; renderCPP(); }
+function renderCPP(){
+  const m=cppMonth; const isYtd=m==='ytd';
+  buildMonthBar('cpp-months',m,'setCPPMonth');
+
+  const active=cppAgents.map(a=>{
+    let val=null;
+    if(isYtd){const vals=a.v.filter(v=>v!==null&&v>0);val=vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:null;}
+    else{val=m<a.v.length?a.v[m]:null;}
+    return{name:a.name,val};
+  }).filter(x=>x.val!==null&&x.val>0).sort((a,b)=>a.val-b.val);
+
+  const avg=active.length?active.reduce((s,a)=>s+a.val,0)/active.length:0;
+  const lowest=active[0]||null; const highest=active[active.length-1]||null;
+
+  document.getElementById('cpp-k-low').textContent=lowest?fmt(lowest.val):'—';
+  document.getElementById('cpp-k-low-name').textContent=lowest?lowest.name:'—';
+  document.getElementById('cpp-k-high').textContent=highest?fmt(highest.val):'—';
+  document.getElementById('cpp-k-high-name').textContent=highest?highest.name:'—';
+  document.getElementById('cpp-k-avg').textContent=avg?fmt(avg):'—';
+  document.getElementById('cpp-k-avg-sub').textContent=active.length+' active agents';
+  document.getElementById('cpp-k-count').textContent=active.length;
+  document.getElementById('cpp-k-count-sub').textContent=isYtd?'Had activity Jan–May':MONTHS[m];
+
+  document.getElementById('cpp-tbody').innerHTML=active.map((a,i)=>`
+    <tr>
+      <td><span class="rank-badge ${rankClass(i)}">${i+1}</span></td>
+      <td style="font-weight:600;color:var(--text)">${a.name}</td>
+      <td class="r" style="color:${colorVal(a.val,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.val)}</td>
+      <td class="r">${pill(a.val,avg)}</td>
+    </tr>`).join('')||'<tr><td colspan="4" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+
+  const highCost=active.filter(a=>a.val>avg*1.25);
+  const consistent=isYtd?cppAgents.filter(a=>a.v.filter(v=>v!==null&&v>0).length>=4):[];
+  document.getElementById('cpp-insights').innerHTML=`
+    <div class="insight-card"><div class="i-label">Most Efficient</div><div class="i-value">${lowest?lowest.name:'—'}</div><div class="i-desc">${lowest?fmt(lowest.val)+' per policy':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">Team Average</div><div class="i-value">${fmt(avg)}</div><div class="i-desc">${active.length} active agents</div></div>
+    <div class="insight-card"><div class="i-label">Highest Cost</div><div class="i-value" style="color:var(--red)">${highest?highest.name:'—'}</div><div class="i-desc">${highest?fmt(highest.val)+' per policy':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${highCost.length?'var(--red)':'var(--green)'}">${highCost.length?highCost.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${highCost.length?'Above 125% of avg':'All within range'}</div></div>
+    <div class="insight-card"><div class="i-label">${isYtd?'4+ Month Agents':'Efficient Agents'}</div><div class="i-value">${isYtd?(consistent.length?consistent.map(a=>a.name).join(', '):'None'):(active.filter(a=>a.val<=avg*0.75).map(a=>a.name).join(', ')||'None')}</div><div class="i-desc">${isYtd?'Active 4+ months':'Below 75% of avg'}</div></div>
+    <div class="insight-card"><div class="i-label">Cost Range</div><div class="i-value">${lowest&&highest?fmt(lowest.val)+' – '+fmt(highest.val):'—'}</div><div class="i-desc">Min to max spread</div></div>`;
+}
+
+// ═══════════════ COST PER CONTACT ═══════════════
+function setCPCMonth(m){ cpcMonth=m; renderCPC(); }
+function renderCPC(){
+  const m=cpcMonth; const isYtd=m==='ytd';
+  buildMonthBar('cpc-months',m,'setCPCMonth');
+  const exp=isYtd?ytdExp:(totalExp[m]||0);
+
+  const active=cpcAgents.map(a=>{
+    const contacts=isYtd?a.c.reduce((s,v)=>s+(v||0),0):(a.c[m]||null);
+    const cost=contacts&&contacts>0&&exp>0?exp/contacts:null;
+    return{name:a.name,contacts,cost};
+  }).filter(x=>x.contacts&&x.contacts>0&&x.cost!==null).sort((a,b)=>a.cost-b.cost);
+
+  const avg=active.length?active.reduce((s,a)=>s+a.cost,0)/active.length:0;
+  const lowest=active[0]||null; const highest=active[active.length-1]||null;
+  const totalContacts=active.reduce((s,a)=>s+(a.contacts||0),0);
+
+  document.getElementById('cpc-k-low').textContent=lowest?fmt(lowest.cost):'—';
+  document.getElementById('cpc-k-low-name').textContent=lowest?lowest.name:'—';
+  document.getElementById('cpc-k-high').textContent=highest?fmt(highest.cost):'—';
+  document.getElementById('cpc-k-high-name').textContent=highest?highest.name:'—';
+  document.getElementById('cpc-k-avg').textContent=avg?fmt(avg):'—';
+  document.getElementById('cpc-k-avg-sub').textContent=active.length+' active agents';
+  document.getElementById('cpc-k-exp').textContent=fmt(exp);
+  document.getElementById('cpc-k-exp-sub').textContent=isYtd?'YTD total expenses':MONTHS[m]+' expenses';
+  document.getElementById('cpc-note').textContent='Formula: '+(isYtd?'YTD':'Monthly')+' Total Expenses ('+fmt(exp)+') ÷ Contacts Assigned per Agent (GHL)';
+
+  document.getElementById('cpc-tbody').innerHTML=active.map((a,i)=>`
+    <tr>
+      <td><span class="rank-badge ${rankClass(i)}">${i+1}</span></td>
+      <td style="font-weight:600;color:var(--text)">${a.name}</td>
+      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmtN(a.contacts)}</td>
+      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmt(exp)}</td>
+      <td class="r" style="color:${colorVal(a.cost,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.cost)}</td>
+      <td class="r">${pill(a.cost,avg)}</td>
+    </tr>`).join('')||'<tr><td colspan="6" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+
+  const highCost=active.filter(a=>a.cost>avg*1.25);
+  const mostContacts=[...active].sort((a,b)=>b.contacts-a.contacts)[0];
+  document.getElementById('cpc-insights').innerHTML=`
+    <div class="insight-card"><div class="i-label">Most Efficient</div><div class="i-value">${lowest?lowest.name:'—'}</div><div class="i-desc">${lowest?fmt(lowest.cost)+' per contact · '+fmtN(lowest.contacts)+' contacts':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">Team Average</div><div class="i-value">${fmt(avg)}</div><div class="i-desc">${active.length} agents · ${fmtN(totalContacts)} total contacts</div></div>
+    <div class="insight-card"><div class="i-label">Highest Cost</div><div class="i-value" style="color:var(--red)">${highest?highest.name:'—'}</div><div class="i-desc">${highest?fmt(highest.cost)+' per contact':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">Most Contacts</div><div class="i-value">${mostContacts?mostContacts.name:'—'}</div><div class="i-desc">${mostContacts?fmtN(mostContacts.contacts)+' assigned':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${highCost.length?'var(--red)':'var(--green)'}">${highCost.length?highCost.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${highCost.length?'Above 125% of avg':'All within range'}</div></div>
+    <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value">${fmt(exp)}</div><div class="i-desc">${isYtd?'Jan–May YTD':MONTHS[m]+' 2026'} · ${active.length} agents</div></div>`;
+}
+
+// ═══════════════ INIT ═══════════════
+renderPL(); renderCPP(); renderCPC();
+</script>
+</body>
+</html>
