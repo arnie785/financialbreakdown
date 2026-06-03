@@ -4,708 +4,487 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TBB — All Hands Financial Dashboard 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --gold: #C9A84C;
-  --gold-light: #F0D080;
-  --gold-dim: #8B6E2A;
-  --dark: #080810;
-  --dark2: #0E0E1C;
-  --dark3: #14142A;
-  --dark4: #1A1A35;
-  --dark5: #202040;
-  --border: rgba(201,168,76,0.2);
-  --border-bright: rgba(201,168,76,0.6);
-  --text: #E8E8F0;
-  --text-dim: #888899;
-  --text-faint: #444460;
-  --green: #3DBA6A;
-  --green-bg: rgba(61,186,106,0.1);
-  --red: #FF5A5A;
-  --red-bg: rgba(255,90,90,0.1);
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--dark);
-  color: var(--text);
-  font-family: var(--font-body);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ── noise overlay ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-}
-
-.page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; }
-
-/* ── header ── */
-.site-header {
-  padding: 32px 0 24px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.logo-area { display: flex; align-items: center; gap: 14px; }
-.logo-icon {
-  width: 48px; height: 48px;
-  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 0 20px rgba(201,168,76,0.3);
-}
-.logo-text h1 {
-  font-family: var(--font-display);
-  font-size: 28px;
-  letter-spacing: 3px;
-  color: var(--gold);
-  line-height: 1;
-}
-.logo-text p { font-size: 12px; color: var(--text-dim); margin-top: 3px; letter-spacing: 0.05em; }
-.header-badge {
-  background: var(--dark4);
-  border: 1px solid var(--border-bright);
-  border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 12px;
-  color: var(--gold);
-  font-family: var(--font-mono);
-  letter-spacing: 0.05em;
-}
-
-/* ── nav tabs ── */
-.nav-tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--dark3);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 28px;
-}
-.nav-tab {
-  flex: 1;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-dim);
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-  letter-spacing: 0.03em;
-}
-.nav-tab:hover:not(.active) { color: var(--gold); background: rgba(201,168,76,0.05); }
-.nav-tab.active { background: var(--gold); color: var(--dark); font-weight: 700; }
-
-/* ── section ── */
-.section { display: none; }
-.section.active { display: block; }
-
-/* ── month bar ── */
-.month-bar {
-  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 20px;
-}
-.m-btn {
-  padding: 6px 12px;
-  border-radius: 7px;
-  border: 1px solid var(--border);
-  background: var(--dark3);
-  color: var(--text-dim);
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  letter-spacing: 0.04em;
-}
-.m-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
-.m-btn.active { background: var(--gold); border-color: var(--gold); color: var(--dark); font-weight: 700; }
-.m-btn.ytd-btn { border-color: var(--gold-dim); color: var(--gold); }
-
-/* ── kpi grid ── */
-.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-.kpi-card {
-  background: var(--dark3);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-.kpi-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--gold);
-  opacity: 0.4;
-}
-.kpi-card:hover { border-color: var(--border-bright); }
-.kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 10px; }
-.kpi-value { font-family: var(--font-mono); font-size: 18px; font-weight: 500; line-height: 1; }
-.kpi-value.green { color: var(--green); }
-.kpi-value.red { color: var(--red); }
-.kpi-value.gold { color: var(--gold); }
-.kpi-value.white { color: var(--text); }
-.kpi-sub { font-size: 11px; color: var(--text-faint); margin-top: 6px; }
-
-/* ── grid ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.grid-full { margin-bottom: 16px; }
-
-/* ── card ── */
-.card {
-  background: var(--dark3);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.card-head {
-  background: linear-gradient(90deg, var(--gold) 0%, #A87828 100%);
-  padding: 10px 16px;
-  display: flex; align-items: center; gap: 8px;
-}
-.card-head h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--dark); }
-.card-head .head-total { margin-left: auto; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--dark); }
-
-/* ── table ── */
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); padding: 8px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.04); }
-.data-table th.r { text-align: right; }
-.data-table td { font-size: 12px; padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-dim); vertical-align: middle; }
-.data-table td.r { text-align: right; }
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: rgba(255,255,255,0.02); }
-.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-right: 6px; }
-.rk1 { background: var(--gold); color: var(--dark); }
-.rk2 { background: #888; color: #fff; }
-.rk3 { background: #6B3A1F; color: #ddd; }
-.rk4 { background: var(--dark5); color: var(--text-dim); }
-
-/* ── pill ── */
-.pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
-.pill-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(61,186,106,0.3); }
-.pill-gold { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
-.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(255,90,90,0.3); }
-
-/* ── bars ── */
-.bar-section { padding: 12px 16px; }
-.bar-item { margin-bottom: 10px; }
-.bar-item:last-child { margin-bottom: 0; }
-.bar-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
-.bar-meta .bl { color: var(--text-dim); }
-.bar-meta .bv { color: var(--text); font-family: var(--font-mono); font-weight: 500; }
-.bar-track { background: var(--dark5); border-radius: 3px; height: 5px; overflow: hidden; }
-.bar-fill { height: 5px; border-radius: 3px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
-
-/* ── insight grid ── */
-.insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px; }
-.insight-card {
-  background: var(--dark4);
-  border-radius: 10px;
-  padding: 12px 14px;
-  border-left: 3px solid var(--gold-dim);
-  transition: border-color 0.2s;
-}
-.insight-card:hover { border-left-color: var(--gold); }
-.insight-card .i-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-faint); margin-bottom: 5px; }
-.insight-card .i-value { font-size: 14px; font-weight: 600; color: var(--gold); font-family: var(--font-mono); }
-.insight-card .i-desc { font-size: 10px; color: var(--text-faint); margin-top: 4px; line-height: 1.4; }
-
-/* ── net bar ── */
-.net-bar {
-  background: linear-gradient(90deg, var(--dark2), var(--dark4));
-  border: 1px solid var(--border-bright);
-  border-radius: 12px;
-  padding: 18px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 4px;
-  position: relative;
-  overflow: hidden;
-}
-.net-bar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at right center, rgba(201,168,76,0.06), transparent 60%);
-  pointer-events: none;
-}
-.net-label { font-family: var(--font-display); font-size: 14px; letter-spacing: 2px; color: var(--gold); }
-.net-sub { font-size: 11px; color: var(--text-faint); margin-top: 3px; }
-.net-amount { font-family: var(--font-mono); font-size: 28px; font-weight: 500; text-align: right; }
-.net-margin { font-size: 11px; color: var(--text-dim); margin-top: 3px; text-align: right; font-family: var(--font-mono); }
-
-/* ── note ── */
-.table-note { font-size: 10px; color: var(--text-faint); font-style: italic; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.04); }
-
-/* ── gold divider ── */
-.gold-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px 0; opacity: 0.4; }
-
-/* ── responsive ── */
-@media(max-width: 768px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .grid-2 { grid-template-columns: 1fr; }
-  .insight-grid { grid-template-columns: repeat(2, 1fr); }
-  .nav-tab { font-size: 11px; padding: 8px 10px; }
-}
-@media(max-width: 480px) {
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
-  .insight-grid { grid-template-columns: 1fr 1fr; }
-}
+:root{--gold:#C9A84C;--gold-dim:#8B6E2A;--dark:#080810;--dark2:#0E0E1C;--dark3:#14142A;--dark4:#1A1A35;--dark5:#202040;--border:rgba(201,168,76,0.2);--border-bright:rgba(201,168,76,0.6);--text:#E8E8F0;--text-dim:#888899;--text-faint:#444460;--green:#3DBA6A;--red:#FF5A5A;--blue:#5A9EFF;--font-display:'Bebas Neue',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text);font-family:var(--font-body);min-height:100vh}
+.page{max-width:1200px;margin:0 auto;padding:0 20px 40px}
+.site-header{padding:28px 0 20px;border-bottom:1px solid var(--border);margin-bottom:24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--gold-dim),var(--gold));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px rgba(201,168,76,0.3)}
+.logo-text h1{font-family:var(--font-display);font-size:26px;letter-spacing:3px;color:var(--gold);line-height:1}
+.logo-text p{font-size:11px;color:var(--text-dim);margin-top:3px}
+.header-badge{background:var(--dark4);border:1px solid var(--border-bright);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--gold);font-family:var(--font-mono)}
+.nav-tabs{display:flex;gap:4px;background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px}
+.nav-tab{flex:1;padding:10px 14px;border:none;border-radius:9px;background:transparent;color:var(--text-dim);font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nav-tab:hover:not(.active){color:var(--gold);background:rgba(201,168,76,.05)}
+.nav-tab.active{background:var(--gold);color:var(--dark);font-weight:700}
+.section{display:none}.section.active{display:block}
+.month-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.m-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:var(--dark3);color:var(--text-dim);font-family:var(--font-body);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
+.m-btn:hover:not(.active){border-color:var(--gold);color:var(--gold)}
+.m-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+.m-btn.ytd-btn{border-color:var(--gold-dim);color:var(--gold)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:.4}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:8px}
+.kpi-value{font-family:var(--font-mono);font-size:17px;font-weight:500;line-height:1}
+.kpi-value.green{color:var(--green)}.kpi-value.red{color:var(--red)}.kpi-value.gold{color:var(--gold)}.kpi-value.white{color:var(--text)}.kpi-value.blue{color:var(--blue)}
+.kpi-sub{font-size:10px;color:var(--text-faint);margin-top:5px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-full{margin-bottom:14px}
+.card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{background:linear-gradient(90deg,var(--gold) 0%,#A87828 100%);padding:9px 14px;display:flex;align-items:center;gap:8px}
+.card-head h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dark)}
+.card-head .head-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);padding:7px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.04)}
+.data-table th.r{text-align:right}
+.data-table td{font-size:12px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text-dim);vertical-align:middle}
+.data-table td.r{text-align:right}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+.sec-row td{background:var(--dark4)!important;color:var(--gold)!important;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:5px 12px!important}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:9px;font-weight:700;margin-right:5px}
+.rk1{background:var(--gold);color:var(--dark)}.rk2{background:#888;color:#fff}.rk3{background:#6B3A1F;color:#ddd}.rk4{background:var(--dark5);color:var(--text-dim)}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600}
+.pill-green{background:rgba(61,186,106,.1);color:var(--green);border:1px solid rgba(61,186,106,.3)}
+.pill-gold{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.pill-red{background:rgba(255,90,90,.1);color:var(--red);border:1px solid rgba(255,90,90,.3)}
+.bar-section{padding:10px 14px}
+.bar-item{margin-bottom:9px}.bar-item:last-child{margin-bottom:0}
+.bar-meta{display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px}
+.bar-meta .bl{color:var(--text-dim)}.bar-meta .bv{color:var(--text);font-family:var(--font-mono);font-weight:500}
+.bar-track{background:var(--dark5);border-radius:3px;height:5px;overflow:hidden}
+.bar-fill{height:5px;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px}
+.insight-card{background:var(--dark4);border-radius:10px;padding:11px 13px;border-left:3px solid var(--gold-dim)}
+.insight-card .i-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:4px}
+.insight-card .i-value{font-size:13px;font-weight:600;color:var(--gold);font-family:var(--font-mono)}
+.insight-card .i-desc{font-size:10px;color:var(--text-faint);margin-top:3px;line-height:1.4}
+.net-bar{background:linear-gradient(90deg,var(--dark2),var(--dark4));border:1px solid var(--border-bright);border-radius:12px;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.net-label{font-family:var(--font-display);font-size:14px;letter-spacing:2px;color:var(--gold)}
+.net-sub{font-size:11px;color:var(--text-faint);margin-top:3px}
+.net-amount{font-family:var(--font-mono);font-size:26px;font-weight:500;text-align:right}
+.net-margin-lbl{font-size:11px;color:var(--text-dim);margin-top:3px;text-align:right;font-family:var(--font-mono)}
+.table-note{font-size:10px;color:var(--text-faint);font-style:italic;padding:7px 12px;border-top:1px solid rgba(255,255,255,.04)}
+.toggle-wrap{display:flex;gap:4px}
+.toggle-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all .15s}
+.toggle-btn.active{background:var(--dark);color:var(--gold);border-color:var(--gold)}
+.toggle-btn:hover:not(.active){color:var(--gold)}
+.agency-cpc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px}
+.agency-cpc-card{background:var(--dark4);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)}
+.agency-cpc-month{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.agency-cpc-val{font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--gold)}
+.agency-cpc-sub{font-size:10px;color:var(--text-faint);margin-top:3px}
+@media(max-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.insight-grid{grid-template-columns:repeat(2,1fr)}.agency-cpc-grid{grid-template-columns:repeat(3,1fr)}.nav-tab{font-size:11px;padding:8px 8px}}
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- Header -->
-  <header class="site-header">
-    <div class="logo-area">
-      <div class="logo-icon">💰</div>
-      <div class="logo-text">
-        <h1>BUILD BETTER BENEFITS</h1>
-        <p>ALL HANDS FINANCIAL DASHBOARD · FISCAL YEAR 2026</p>
-      </div>
+<header class="site-header">
+  <div class="logo-area">
+    <div class="logo-icon">💰</div>
+    <div class="logo-text">
+      <h1>BUILD BETTER BENEFITS</h1>
+      <p>ALL HANDS FINANCIAL DASHBOARD · FISCAL YEAR 2026</p>
     </div>
-    <div class="header-badge" id="main-period-badge">YTD JAN–MAY 2026</div>
-  </header>
+  </div>
+  <div class="header-badge" id="main-badge">LOADING...</div>
+</header>
 
-  <!-- Nav Tabs -->
-  <nav class="nav-tabs">
-    <button class="nav-tab active" onclick="showSection('pl')">📊 P&L Summary</button>
-    <button class="nav-tab" onclick="showSection('cpp')">🎯 Cost per Policy</button>
-    <button class="nav-tab" onclick="showSection('cpc')">📇 Cost per Contact</button>
-  </nav>
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showTab('pl',this)">📊 P&L Summary</button>
+  <button class="nav-tab" onclick="showTab('cpp',this)">🎯 Cost per Policy / Client</button>
+  <button class="nav-tab" onclick="showTab('cpc',this)">📇 Cost per Contact</button>
+</nav>
 
-  <!-- ════════════════════════════════════════
-       SECTION 1 — P&L SUMMARY
-  ════════════════════════════════════════ -->
-  <section class="section active" id="sec-pl">
-    <div class="month-bar" id="pl-months"></div>
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value green" id="pl-k-rev">—</div><div class="kpi-sub" id="pl-k-rev-sub">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value red" id="pl-k-exp">—</div><div class="kpi-sub" id="pl-k-exp-sub">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Net Profit / Loss</div><div class="kpi-value gold" id="pl-k-net">—</div><div class="kpi-sub" id="pl-k-margin">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Agent Payouts</div><div class="kpi-value white" id="pl-k-agent">—</div><div class="kpi-sub" id="pl-k-agent-sub">—</div></div>
+<!-- P&L -->
+<section class="section active" id="sec-pl">
+  <div class="month-bar" id="pl-mbar"></div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value green" id="pl-rev">—</div><div class="kpi-sub" id="pl-rev-sub">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value red" id="pl-exp">—</div><div class="kpi-sub">All categories</div></div>
+    <div class="kpi-card"><div class="kpi-label">Net Profit / Loss</div><div class="kpi-value gold" id="pl-net">—</div><div class="kpi-sub" id="pl-net-sub">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Rev-Share Net</div><div class="kpi-value blue" id="pl-revshare">—</div><div class="kpi-sub">Collected minus paid out</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><h3 id="pl-tbl-title">Monthly P&L</h3></div>
+      <table class="data-table"><thead><tr><th>Period</th><th class="r">Revenue</th><th class="r">Expenses</th><th class="r">Net</th></tr></thead><tbody id="pl-tbody"></tbody></table>
     </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-head"><h3>Monthly P&L</h3><span class="head-total" id="pl-tbl-title">Jan–May 2026</span></div>
-        <table class="data-table"><thead><tr><th>Period</th><th class="r">Revenue</th><th class="r">Expenses</th><th class="r">Net</th></tr></thead><tbody id="pl-tbody"></tbody></table>
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>Expense Breakdown</h3></div>
-        <div class="bar-section" id="pl-bars"></div>
-      </div>
+    <div class="card">
+      <div class="card-head"><h3>Expense Breakdown</h3></div>
+      <div class="bar-section" id="pl-bars"></div>
     </div>
-    <div class="grid-full">
-      <div class="card">
-        <div class="card-head"><h3>Executive Insights</h3></div>
-        <div class="insight-grid" id="pl-insights"></div>
-      </div>
+  </div>
+  <div class="grid-full">
+    <div class="card">
+      <div class="card-head"><h3>P&L Detail</h3></div>
+      <table class="data-table"><thead><tr><th>Category</th><th class="r" id="pl-detail-col">YTD Total</th></tr></thead><tbody id="pl-detail-tbody"></tbody></table>
     </div>
-    <div class="net-bar">
-      <div><div class="net-label">NET PROFIT / LOSS</div><div class="net-sub" id="pl-net-period">January – May 2026 · Build Better Benefits Inc.</div></div>
-      <div><div class="net-amount" id="pl-net-big">—</div><div class="net-margin" id="pl-net-margin-lbl">—</div></div>
-    </div>
-  </section>
+  </div>
+  <div class="grid-full">
+    <div class="card"><div class="card-head"><h3>Executive Insights</h3></div><div class="insight-grid" id="pl-insights"></div></div>
+  </div>
+  <div class="net-bar">
+    <div><div class="net-label">NET PROFIT / LOSS</div><div class="net-sub" id="pl-net-period">—</div></div>
+    <div><div class="net-amount" id="pl-net-big">—</div><div class="net-margin-lbl" id="pl-net-margin">—</div></div>
+  </div>
+</section>
 
-  <!-- ════════════════════════════════════════
-       SECTION 2 — COST PER POLICY
-  ════════════════════════════════════════ -->
-  <section class="section" id="sec-cpp">
-    <div class="month-bar" id="cpp-months"></div>
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Lowest Cost/Policy</div><div class="kpi-value green" id="cpp-k-low">—</div><div class="kpi-sub" id="cpp-k-low-name">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Highest Cost/Policy</div><div class="kpi-value red" id="cpp-k-high">—</div><div class="kpi-sub" id="cpp-k-high-name">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpp-k-avg">—</div><div class="kpi-sub" id="cpp-k-avg-sub">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Active Agents</div><div class="kpi-value white" id="cpp-k-count">—</div><div class="kpi-sub" id="cpp-k-count-sub">—</div></div>
-    </div>
-    <div class="grid-full">
-      <div class="card">
-        <div class="card-head"><h3>Agent Ranking — Cost per Policy</h3></div>
-        <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r">Cost / Policy</th><th class="r">Efficiency</th></tr></thead><tbody id="cpp-tbody"></tbody></table>
-        <div class="table-note">Formula: Combined monthly payout ÷ deals closed. Lower = more cost-efficient agent.</div>
+<!-- COST PER POLICY / CLIENT -->
+<section class="section" id="sec-cpp">
+  <div class="month-bar" id="cpp-mbar"></div>
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Lowest Cost</div><div class="kpi-value green" id="cpp-low">—</div><div class="kpi-sub" id="cpp-low-name">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Highest Cost</div><div class="kpi-value red" id="cpp-high">—</div><div class="kpi-sub" id="cpp-high-name">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpp-avg">—</div><div class="kpi-sub" id="cpp-avg-sub">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Active Agents</div><div class="kpi-value white" id="cpp-count">—</div><div class="kpi-sub" id="cpp-count-sub">—</div></div>
+  </div>
+  <div class="grid-full">
+    <div class="card">
+      <div class="card-head">
+        <h3 id="cpp-tbl-title">Agent Ranking</h3>
+        <div class="head-right">
+          <div class="toggle-wrap">
+            <button class="toggle-btn active" id="toggle-policy" onclick="setCPPView('policy')">Per Policy</button>
+            <button class="toggle-btn" id="toggle-client" onclick="setCPPView('client')">Per Client</button>
+          </div>
+        </div>
       </div>
+      <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r" id="cpp-col-count">Policies</th><th class="r">Total Payout</th><th class="r" id="cpp-col-cost">Cost / Policy</th><th class="r">Efficiency</th></tr></thead><tbody id="cpp-tbody"></tbody></table>
+      <div class="table-note" id="cpp-note">Formula: Total Agent Payouts ÷ Policies Written per Agent</div>
     </div>
-    <div class="grid-full">
-      <div class="card">
-        <div class="card-head"><h3>Insights</h3></div>
-        <div class="insight-grid" id="cpp-insights"></div>
-      </div>
-    </div>
-  </section>
+  </div>
+  <div class="grid-full">
+    <div class="card"><div class="card-head"><h3>Insights</h3></div><div class="insight-grid" id="cpp-insights"></div></div>
+  </div>
+</section>
 
-  <!-- ════════════════════════════════════════
-       SECTION 3 — COST PER CONTACT
-  ════════════════════════════════════════ -->
-  <section class="section" id="sec-cpc">
-    <div class="month-bar" id="cpc-months"></div>
-    <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-label">Lowest Cost/Contact</div><div class="kpi-value green" id="cpc-k-low">—</div><div class="kpi-sub" id="cpc-k-low-name">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Highest Cost/Contact</div><div class="kpi-value red" id="cpc-k-high">—</div><div class="kpi-sub" id="cpc-k-high-name">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpc-k-avg">—</div><div class="kpi-sub" id="cpc-k-avg-sub">—</div></div>
-      <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value white" id="cpc-k-exp">—</div><div class="kpi-sub" id="cpc-k-exp-sub">—</div></div>
-    </div>
-    <div class="grid-full">
-      <div class="card">
-        <div class="card-head"><h3>Agent Ranking — Cost per Contact</h3></div>
-        <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r">Contacts Assigned</th><th class="r">Total Expenses</th><th class="r">Cost / Contact</th><th class="r">Efficiency</th></tr></thead><tbody id="cpc-tbody"></tbody></table>
-        <div class="table-note" id="cpc-note">Formula: Monthly Total Expenses ÷ Contacts Assigned (GHL created date)</div>
-      </div>
-    </div>
-    <div class="grid-full">
-      <div class="card">
-        <div class="card-head"><h3>Insights</h3></div>
-        <div class="insight-grid" id="cpc-insights"></div>
-      </div>
-    </div>
-  </section>
+<!-- COST PER CONTACT -->
+<section class="section" id="sec-cpc">
+  <div class="month-bar" id="cpc-mbar"></div>
 
-</div><!-- /page -->
+  <!-- Agency-level monthly cost per contact -->
+  <div class="grid-full">
+    <div class="card">
+      <div class="card-head"><h3>📊 Agency Cost per Contact — Monthly Overview</h3></div>
+      <div class="agency-cpc-grid" id="agency-cpc-grid"></div>
+      <div class="table-note">Formula: Monthly Total Expenses ÷ Total Contacts Assigned (all agents)</div>
+    </div>
+  </div>
 
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Lowest Cost/Contact</div><div class="kpi-value green" id="cpc-low">—</div><div class="kpi-sub" id="cpc-low-name">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Highest Cost/Contact</div><div class="kpi-value red" id="cpc-high">—</div><div class="kpi-sub" id="cpc-high-name">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Team Average</div><div class="kpi-value gold" id="cpc-avg">—</div><div class="kpi-sub" id="cpc-avg-sub">—</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Expenses</div><div class="kpi-value white" id="cpc-exp">—</div><div class="kpi-sub" id="cpc-exp-sub">—</div></div>
+  </div>
+
+  <div class="grid-full">
+    <div class="card">
+      <div class="card-head"><h3>Agent Ranking — Cost per Contact</h3></div>
+      <table class="data-table"><thead><tr><th>#</th><th>Agent</th><th class="r">Contacts</th><th class="r">Total Expenses</th><th class="r">Cost / Contact</th><th class="r">Efficiency</th></tr></thead><tbody id="cpc-tbody"></tbody></table>
+      <div class="table-note" id="cpc-note">Formula: Monthly Total Expenses ÷ Contacts Assigned per Agent (GHL)</div>
+    </div>
+  </div>
+  <div class="grid-full">
+    <div class="card"><div class="card-head"><h3>Insights</h3></div><div class="insight-grid" id="cpc-insights"></div></div>
+  </div>
+</section>
+
+</div>
 <script>
-// ═══════════════ CONFIG ═══════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwm40F5h8NqbTnMHHulugmr8j-NBFl7KSLF0jJRVpDgDRqLy8pkti0OUzK1G7FVcFk_/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzdWfUB92u_BBNxuNUfC9vi7VZ7PHG0nnWtLi64Gcwq0EJbMepPNrqejAfiMK8KAToB/exec';
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmt=v=>'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=v=>Math.round(v).toLocaleString('en-US');
 
-// ═══════════════ GLOBALS ═══════════════
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const fmt = v => '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtN = v => Math.round(v).toLocaleString('en-US');
+let plData={rev:[],agent:[],revShare:[],ops:[],totalExp:Array(12).fill(0)};
+let cppPolicy=[],cppClient=[],cpcAgents=[],liveAgents=[];
+let plM='ytd',cppM='ytd',cpcM='ytd',cppView='policy';
 
-let plData = { rev:[], agent:[], ops:[] };
-let cppAgents = [];
-let totalExp = Array(12).fill(0);
-let ytdExp = 0;
-let cpcAgents = [];
+function isLive(name){ return liveAgents.length===0 || liveAgents.includes(name); }
 
-// ═══════════════ STATE ═══════════════
-let plMonth = 'ytd', cppMonth = 'ytd', cpcMonth = 'ytd';
-
-// ═══════════════ HELPERS ═══════════════
-function sumArr(arr, m) { return m==='ytd'?arr.reduce((a,b)=>a+(b||0),0):(arr[m]||0); }
-function sumGroup(group, m) { return group.reduce((a,r)=>a+sumArr(r.v,m),0); }
-function pill(v, avg) {
+function sumArr(arr,m){return m==='ytd'?arr.reduce((a,b)=>a+(b||0),0):(arr[m]||0);}
+function sumGroup(g,m){return g.reduce((a,r)=>a+sumArr(r.v,m),0);}
+function pill(v,avg){
   if(v===null)return '';
-  if(v<=avg*0.75)return '<span class="pill pill-green">Efficient</span>';
+  if(v<=avg*.75)return '<span class="pill pill-green">Efficient</span>';
   if(v<=avg*1.25)return '<span class="pill pill-gold">Average</span>';
   return '<span class="pill pill-red">High Cost</span>';
 }
-function rankClass(i){ return ['rk1','rk2','rk3','rk4'][Math.min(i,3)]; }
-function colorVal(v, avg){ return v<=avg?'var(--green)':v<=avg*1.25?'var(--gold)':'var(--red)'; }
-
-function buildMonthBar(containerId, state, callback) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = MONTHS.map((m,i)=>`<button class="m-btn${state===i?' active':''}" onclick="${callback}(${i})">${m}</button>`).join('')
-    +`<button class="m-btn ytd-btn${state==='ytd'?' active':''}" onclick="${callback}('ytd')">YTD</button>`;
+function rkClass(i){return['rk1','rk2','rk3','rk4'][Math.min(i,3)];}
+function colVal(v,avg){return v<=avg?'var(--green)':v<=avg*1.25?'var(--gold)':'var(--red)';}
+function buildMBar(id,cur,cb){
+  document.getElementById(id).innerHTML=
+    MONTHS.map((m,i)=>`<button class="m-btn${cur===i?' active':''}" onclick="${cb}(${i})">${m}</button>`).join('')+
+    `<button class="m-btn ytd-btn${cur==='ytd'?' active':''}" onclick="${cb}('ytd')">YTD</button>`;
 }
-
-// ═══════════════ NAV ═══════════════
-function showSection(id) {
+function showTab(id,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  btn.classList.add('active');
 }
 
-// ═══════════════ P&L ═══════════════
-function setPLMonth(m){ plMonth=m; renderPL(); }
+// ── P&L ──
+function setPLM(m){plM=m;renderPL();}
 function renderPL(){
-  const m=plMonth; const isYtd=m==='ytd';
-  buildMonthBar('pl-months','ytd'===m?'ytd':m,'setPLMonth');
-  // recalc active buttons
-  document.querySelectorAll('#pl-months .m-btn').forEach((btn,i)=>{
-    btn.classList.toggle('active', isYtd?btn.classList.contains('ytd-btn'):i===m);
-  });
-  const period = isYtd?'YTD Jan–May 2026':MONTHS[m]+' 2026';
-  document.getElementById('main-period-badge').textContent = period.toUpperCase();
-  document.getElementById('pl-net-period').textContent = (isYtd?'January – May 2026':MONTHS[m]+' 2026')+' · Build Better Benefits Inc.';
+  const m=plM,iy=m==='ytd';
+  buildMBar('pl-mbar',m,'setPLM');
+  const period=iy?'YTD Jan–May 2026':MONTHS[m]+' 2026';
+  document.getElementById('main-badge').textContent=period.toUpperCase();
+  document.getElementById('pl-net-period').textContent=(iy?'January – May 2026':MONTHS[m]+' 2026')+' · Build Better Benefits Inc.';
 
-  const totalRev = sumGroup(plData.rev,m);
-  const totalAgent = sumGroup(plData.agent,m);
-  const totalOps = sumGroup(plData.ops,m);
-  const totalExpenses = totalAgent+totalOps;
-  const net = totalRev-totalExpenses;
-  const margin = totalRev>0?((net/totalRev)*100).toFixed(1):'0';
+  const tRev   = sumGroup(plData.rev,m);
+  const tAgent = sumGroup(plData.agent,m);
+  const tRS    = sumGroup(plData.revShare,m);
+  const tOps   = sumGroup(plData.ops,m);
+  const tExp   = tAgent+tRS+tOps;
+  const net    = tRev-tExp;
+  const margin = tRev>0?((net/tRev)*100).toFixed(1):'0';
 
-  document.getElementById('pl-k-rev').textContent=fmt(totalRev);
-  document.getElementById('pl-k-rev-sub').textContent=isYtd?'5-month total':MONTHS[m]+' deposits';
-  document.getElementById('pl-k-exp').textContent=fmt(totalExpenses);
-  document.getElementById('pl-k-exp-sub').textContent='All categories';
-  document.getElementById('pl-k-net').textContent=(net<0?'-':'')+fmt(net);
-  document.getElementById('pl-k-net').className='kpi-value '+(net>=0?'gold':'red');
-  document.getElementById('pl-k-margin').textContent=margin+'% net margin';
-  document.getElementById('pl-k-agent').textContent=fmt(totalAgent);
-  document.getElementById('pl-k-agent-sub').textContent=totalRev>0?((totalAgent/totalExpenses)*100).toFixed(1)+'% of expenses':'—';
+  document.getElementById('pl-rev').textContent=fmt(tRev);
+  document.getElementById('pl-rev-sub').textContent=iy?'5-month total':MONTHS[m]+' deposits';
+  document.getElementById('pl-exp').textContent=fmt(tExp);
+  document.getElementById('pl-net').textContent=(net<0?'-':'')+fmt(net);
+  document.getElementById('pl-net').className='kpi-value '+(net>=0?'gold':'red');
+  document.getElementById('pl-net-sub').textContent=margin+'% margin';
+  document.getElementById('pl-revshare').textContent=(tRS<0?'-':'')+fmt(tRS);
+  document.getElementById('pl-revshare').className='kpi-value '+(tRS<=0?'blue':'red');
 
-  // table
-  document.getElementById('pl-tbl-title').textContent=isYtd?'Jan–May 2026':MONTHS[m]+' Detail';
+  // monthly table
+  document.getElementById('pl-tbl-title').textContent=iy?'Monthly P&L':'Expense Detail — '+MONTHS[m];
   const tbody=document.getElementById('pl-tbody');
-  if(isYtd){
-    const rows=[0,1,2,3,4].map(i=>{
-      const r=sumGroup(plData.rev,i),e=sumGroup(plData.agent,i)+sumGroup(plData.ops,i),n=r-e;
-      return `<tr><td><span class="rank-badge ${rankClass(i)}">${i+1}</span>${MONTHS[i]}</td><td class="r" style="color:var(--green);font-family:var(--font-mono)">${fmt(r)}</td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(e)}</td><td class="r" style="color:${n>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-weight:600">${(n<0?'-':'')+fmt(n)}</td></tr>`;
-    });
-    tbody.innerHTML=rows.join('');
+  if(iy){
+    tbody.innerHTML=[0,1,2,3,4].map((i,rank)=>{
+      const r=sumGroup(plData.rev,i);
+      const e=sumGroup(plData.agent,i)+sumGroup(plData.revShare,i)+sumGroup(plData.ops,i);
+      const n=r-e;
+      return`<tr><td><span class="rank-badge ${rkClass(rank)}">${rank+1}</span>${MONTHS[i]}</td><td class="r" style="color:var(--green);font-family:var(--font-mono)">${fmt(r)}</td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(e)}</td><td class="r" style="color:${n>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-weight:600">${(n<0?'-':'')+fmt(n)}</td></tr>`;
+    }).join('');
   } else {
-    const ops=plData.ops.map(o=>({l:o.l,v:o.v[m]||0})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
-    tbody.innerHTML=ops.map(o=>`<tr><td colspan="2" style="color:var(--text-dim)">${o.l}</td><td class="r"></td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(o.v)}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+    const ops=plData.ops.map(o=>({l:o.l,v:o.v[m]||0})).filter(x=>x.v!==0).sort((a,b)=>Math.abs(b.v)-Math.abs(a.v));
+    tbody.innerHTML=ops.map(o=>`<tr><td colspan="2">${o.l}</td><td class="r"></td><td class="r" style="color:${o.v<0?'var(--blue)':'var(--red)'};font-family:var(--font-mono)">${o.v<0?'-':''} ${fmt(o.v)}</td></tr>`).join('')||'<tr><td colspan="4" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
   }
 
+  // P&L detail
+  document.getElementById('pl-detail-col').textContent=iy?'YTD Total':MONTHS[m];
+  let html='';
+  const sections=[
+    {title:'REVENUE',items:plData.rev,total:tRev,color:'var(--green)'},
+    {title:'AGENT PAYOUTS',items:plData.agent,total:tAgent,color:'var(--red)'},
+    {title:'REV-SHARE PAYMENTS',items:plData.revShare,total:tRS,color:'var(--blue)'},
+    {title:'OPERATING EXPENSES',items:plData.ops,total:tOps,color:'var(--red)'},
+  ];
+  sections.forEach(({title,items,total,color})=>{
+    html+=`<tr class="sec-row"><td colspan="2">${title}</td></tr>`;
+    items.forEach(item=>{
+      const v=sumArr(item.v,m);
+      if(v===0)return;
+      html+=`<tr><td style="padding-left:20px;color:var(--text-dim)">${item.l}</td><td class="r" style="font-family:var(--font-mono);color:${v<0?'var(--blue)':'var(--text)'}">${v<0?'-':''} ${fmt(v)}</td></tr>`;
+    });
+    html+=`<tr><td style="font-weight:600;color:${color};padding-left:8px">Subtotal</td><td class="r" style="font-family:var(--font-mono);font-weight:700;color:${color}">${total<0?'-':''} ${fmt(total)}</td></tr>`;
+    html+=`<tr><td colspan="2" style="height:3px;background:var(--dark4)"></td></tr>`;
+  });
+  html+=`<tr style="background:var(--dark2)"><td style="font-weight:700;color:${net>=0?'var(--green)':'var(--red)'};font-family:var(--font-display);font-size:13px;letter-spacing:1px">NET PROFIT / LOSS</td><td class="r" style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:${net>=0?'var(--green)':'var(--red)'}">${net<0?'-':''} ${fmt(net)}</td></tr>`;
+  document.getElementById('pl-detail-tbody').innerHTML=html;
+
   // bars
-  const opsVals=plData.ops.map(o=>({l:o.l,v:sumArr(o.v,m)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
-  const maxB=opsVals[0]?.v||1;
-  document.getElementById('pl-bars').innerHTML=opsVals.map(o=>`
+  const allItems=[
+    ...plData.agent.map(o=>({l:o.l,v:Math.abs(sumArr(o.v,m)),color:'var(--red)'})),
+    ...plData.revShare.map(o=>({l:o.l,v:Math.abs(sumArr(o.v,m)),color:'var(--blue)'})),
+    ...plData.ops.map(o=>({l:o.l,v:Math.abs(sumArr(o.v,m)),color:'var(--red)'})),
+  ].filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+  const maxB=allItems[0]?.v||1;
+  document.getElementById('pl-bars').innerHTML=allItems.slice(0,8).map(o=>`
     <div class="bar-item">
       <div class="bar-meta"><span class="bl">${o.l}</span><span class="bv">${fmt(o.v)}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(o.v/maxB*100)}%;background:var(--red)"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(o.v/maxB*100)}%;background:${o.color}"></div></div>
     </div>`).join('')||'<p style="color:var(--text-faint);font-size:11px">No data</p>';
 
   // insights
-  const bestNetM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n>b.n?{i,n}:b},{i:0,n:-Infinity});
-  const bestRevM=[0,1,2,3,4].reduce((b,i)=>{const r=sumGroup(plData.rev,i);return r>b.r?{i,r}:b},{i:0,r:-Infinity});
-  const worstM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n<b.n?{i,n}:b},{i:0,n:Infinity});
-  const topOps=opsVals[0]||{l:'—',v:0};
-  const prevM=!isYtd&&m>0?m-1:null;
-  const prevRev=prevM!==null?sumGroup(plData.rev,prevM):null;
-  const revChg=prevRev&&prevRev>0?((totalRev-prevRev)/prevRev*100).toFixed(1):null;
+  const bNM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.revShare,i)-sumGroup(plData.ops,i);return n>b.n?{i,n}:b},{i:0,n:-Infinity});
+  const bRM=[0,1,2,3,4].reduce((b,i)=>{const r=sumGroup(plData.rev,i);return r>b.r?{i,r}:b},{i:0,r:-Infinity});
+  const wM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.revShare,i)-sumGroup(plData.ops,i);return n<b.n?{i,n}:b},{i:0,n:Infinity});
+  const topO=allItems[0]||{l:'—',v:0};
 
-  let ins='';
-  if(isYtd){
-    ins=`
-      <div class="insight-card"><div class="i-label">Best Net Month</div><div class="i-value">${MONTHS[bestNetM.i]}</div><div class="i-desc">${fmt(bestNetM.n)} net profit</div></div>
-      <div class="insight-card"><div class="i-label">Highest Revenue</div><div class="i-value">${MONTHS[bestRevM.i]}</div><div class="i-desc">${fmt(bestRevM.r)} deposits</div></div>
-      <div class="insight-card"><div class="i-label">Watch This Month</div><div class="i-value" style="color:var(--red)">${MONTHS[worstM.i]}</div><div class="i-desc">Lowest net at ${fmt(worstM.n)}</div></div>
-      <div class="insight-card"><div class="i-label">YTD Net Margin</div><div class="i-value">${margin}%</div><div class="i-desc">${fmt(net)} on ${fmt(totalRev)}</div></div>
-      <div class="insight-card"><div class="i-label">Top Ops Expense</div><div class="i-value">${topOps.l}</div><div class="i-desc">${fmt(topOps.v)} YTD</div></div>
-      <div class="insight-card"><div class="i-label">Agent Cost Ratio</div><div class="i-value">${totalExpenses>0?((totalAgent/totalExpenses)*100).toFixed(1)+'%':'—'}</div><div class="i-desc">Of total expenses</div></div>`;
-  } else {
-    ins=`
-      <div class="insight-card"><div class="i-label">Revenue</div><div class="i-value" style="color:var(--green)">${fmt(totalRev)}</div><div class="i-desc">${revChg!==null?(parseFloat(revChg)>=0?'▲ +':'▼ ')+revChg+'% vs '+MONTHS[prevM]:'—'}</div></div>
-      <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value" style="color:var(--red)">${fmt(totalExpenses)}</div><div class="i-desc">${isYtd?'YTD':MONTHS[m]+' 2026'}</div></div>
-      <div class="insight-card"><div class="i-label">Net Profit</div><div class="i-value" style="color:${net>=0?'var(--green)':'var(--red)'}">${fmt(net)}</div><div class="i-desc">${margin}% margin</div></div>
-      <div class="insight-card"><div class="i-label">Top Expense</div><div class="i-value">${topOps.l||'—'}</div><div class="i-desc">${topOps.v?fmt(topOps.v):'—'}</div></div>
-      <div class="insight-card"><div class="i-label">Agent Payouts</div><div class="i-value">${fmt(totalAgent)}</div><div class="i-desc">${totalExpenses>0?((totalAgent/totalExpenses)*100).toFixed(1)+'% of expenses':'—'}</div></div>
-      <div class="insight-card"><div class="i-label">Ops Expenses</div><div class="i-value">${fmt(totalOps)}</div><div class="i-desc">${totalExpenses>0?((totalOps/totalExpenses)*100).toFixed(1)+'% of expenses':'—'}</div></div>`;
-  }
-  document.getElementById('pl-insights').innerHTML=ins;
+  document.getElementById('pl-insights').innerHTML=iy?`
+    <div class="insight-card"><div class="i-label">Best Net Month</div><div class="i-value">${MONTHS[bNM.i]}</div><div class="i-desc">${fmt(bNM.n)} net profit</div></div>
+    <div class="insight-card"><div class="i-label">Highest Revenue</div><div class="i-value">${MONTHS[bRM.i]}</div><div class="i-desc">${fmt(bRM.r)} deposits</div></div>
+    <div class="insight-card"><div class="i-label">Watch This Month</div><div class="i-value" style="color:var(--red)">${MONTHS[wM.i]}</div><div class="i-desc">Lowest net at ${wM.n<0?'-':''}${fmt(wM.n)}</div></div>
+    <div class="insight-card"><div class="i-label">YTD Net Margin</div><div class="i-value">${margin}%</div><div class="i-desc">${net<0?'-':''}${fmt(net)} on ${fmt(tRev)}</div></div>
+    <div class="insight-card"><div class="i-label">Rev-Share YTD</div><div class="i-value" style="color:var(--blue)">${tRS<0?'-':''}${fmt(tRS)}</div><div class="i-desc">Net after partner payouts</div></div>
+    <div class="insight-card"><div class="i-label">Top Expense</div><div class="i-value">${topO.l}</div><div class="i-desc">${fmt(topO.v)} YTD</div></div>`:`
+    <div class="insight-card"><div class="i-label">Revenue</div><div class="i-value" style="color:var(--green)">${fmt(tRev)}</div><div class="i-desc">${MONTHS[m]+' 2026'}</div></div>
+    <div class="insight-card"><div class="i-label">Agent Payouts</div><div class="i-value" style="color:var(--red)">${fmt(tAgent)}</div><div class="i-desc">${tExp>0?((tAgent/tExp)*100).toFixed(1)+'% of expenses':'—'}</div></div>
+    <div class="insight-card"><div class="i-label">Rev-Share Net</div><div class="i-value" style="color:var(--blue)">${tRS<0?'-':''}${fmt(tRS)}</div><div class="i-desc">Collected minus paid out</div></div>
+    <div class="insight-card"><div class="i-label">Net Profit</div><div class="i-value" style="color:${net>=0?'var(--green)':'var(--red)'}">${net<0?'-':''}${fmt(net)}</div><div class="i-desc">${margin}% margin</div></div>
+    <div class="insight-card"><div class="i-label">Ops Expenses</div><div class="i-value">${fmt(tOps)}</div><div class="i-desc">${tExp>0?((tOps/tExp)*100).toFixed(1)+'% of expenses':'—'}</div></div>
+    <div class="insight-card"><div class="i-label">Top Expense</div><div class="i-value">${topO.l||'—'}</div><div class="i-desc">${topO.v?fmt(topO.v):'—'}</div></div>`;
 
   const netEl=document.getElementById('pl-net-big');
   netEl.textContent=(net<0?'-':'')+fmt(net);
   netEl.style.color=net>=0?'var(--green)':'var(--red)';
-  document.getElementById('pl-net-margin-lbl').textContent='Net Margin: '+margin+'% · Revenue: '+fmt(totalRev);
+  document.getElementById('pl-net-margin').textContent='Net Margin: '+margin+'% · Revenue: '+fmt(tRev);
 }
 
-// ═══════════════ COST PER POLICY ═══════════════
-function setCPPMonth(m){ cppMonth=m; renderCPP(); }
+// ── COST PER POLICY / CLIENT ──
+function setCPPM(m){cppM=m;renderCPP();}
+function setCPPView(v){
+  cppView=v;
+  document.getElementById('toggle-policy').classList.toggle('active',v==='policy');
+  document.getElementById('toggle-client').classList.toggle('active',v==='client');
+  renderCPP();
+}
 function renderCPP(){
-  const m=cppMonth; const isYtd=m==='ytd';
-  buildMonthBar('cpp-months',m,'setCPPMonth');
+  const m=cppM,iy=m==='ytd';
+  buildMBar('cpp-mbar',m,'setCPPM');
+  const source=(cppView==='policy'?cppPolicy:cppClient).filter(a=>isLive(a.name));
+  const totalPayout=iy?sumGroup(plData.agent,'ytd'):sumGroup(plData.agent,m);
+  const active=source.map(a=>{
+    const count=iy?a.vals.reduce((s,v)=>s+(v||0),0):(a.vals[m]||null);
+    const cost=count&&count>0?totalPayout/count:null;
+    return{name:a.name,count,cost};
+  }).filter(x=>x.count&&x.count>0&&x.cost!==null).sort((a,b)=>a.cost-b.cost);
 
-  const active=cppAgents.map(a=>{
-    let val=null;
-    if(isYtd){const vals=a.v.filter(v=>v!==null&&v>0);val=vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:null;}
-    else{val=m<a.v.length?a.v[m]:null;}
-    return{name:a.name,val};
-  }).filter(x=>x.val!==null&&x.val>0).sort((a,b)=>a.val-b.val);
+  const avg=active.length?active.reduce((s,a)=>s+a.cost,0)/active.length:0;
+  const lowest=active[0]||null,highest=active[active.length-1]||null;
+  const label=cppView==='policy'?'Policy':'Client';
 
-  const avg=active.length?active.reduce((s,a)=>s+a.val,0)/active.length:0;
-  const lowest=active[0]||null; const highest=active[active.length-1]||null;
-
-  document.getElementById('cpp-k-low').textContent=lowest?fmt(lowest.val):'—';
-  document.getElementById('cpp-k-low-name').textContent=lowest?lowest.name:'—';
-  document.getElementById('cpp-k-high').textContent=highest?fmt(highest.val):'—';
-  document.getElementById('cpp-k-high-name').textContent=highest?highest.name:'—';
-  document.getElementById('cpp-k-avg').textContent=avg?fmt(avg):'—';
-  document.getElementById('cpp-k-avg-sub').textContent=active.length+' active agents';
-  document.getElementById('cpp-k-count').textContent=active.length;
-  document.getElementById('cpp-k-count-sub').textContent=isYtd?'Had activity Jan–May':MONTHS[m];
+  document.getElementById('cpp-low').textContent=lowest?fmt(lowest.cost):'—';
+  document.getElementById('cpp-low-name').textContent=lowest?lowest.name:'—';
+  document.getElementById('cpp-high').textContent=highest?fmt(highest.cost):'—';
+  document.getElementById('cpp-high-name').textContent=highest?highest.name:'—';
+  document.getElementById('cpp-avg').textContent=avg?fmt(avg):'—';
+  document.getElementById('cpp-avg-sub').textContent=active.length+' active agents';
+  document.getElementById('cpp-count').textContent=active.length;
+  document.getElementById('cpp-count-sub').textContent=iy?'Had activity Jan–May':MONTHS[m];
+  document.getElementById('cpp-tbl-title').textContent='Agent Ranking — Cost per '+label;
+  document.getElementById('cpp-col-count').textContent=label+'s';
+  document.getElementById('cpp-col-cost').textContent='Cost / '+label;
+  document.getElementById('cpp-note').textContent=`Formula: Total Agent Payouts (${fmt(totalPayout)}) ÷ ${label}s per Agent`;
 
   document.getElementById('cpp-tbody').innerHTML=active.map((a,i)=>`
     <tr>
-      <td><span class="rank-badge ${rankClass(i)}">${i+1}</span></td>
+      <td><span class="rank-badge ${rkClass(i)}">${i+1}</span></td>
       <td style="font-weight:600;color:var(--text)">${a.name}</td>
-      <td class="r" style="color:${colorVal(a.val,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.val)}</td>
-      <td class="r">${pill(a.val,avg)}</td>
-    </tr>`).join('')||'<tr><td colspan="4" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmtN(a.count)}</td>
+      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmt(totalPayout)}</td>
+      <td class="r" style="color:${colVal(a.cost,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.cost)}</td>
+      <td class="r">${pill(a.cost,avg)}</td>
+    </tr>`).join('')||'<tr><td colspan="6" style="color:var(--text-faint);text-align:center;padding:16px">No data for this period</td></tr>';
 
-  const highCost=active.filter(a=>a.val>avg*1.25);
-  const consistent=isYtd?cppAgents.filter(a=>a.v.filter(v=>v!==null&&v>0).length>=4):[];
+  const hc=active.filter(a=>a.cost>avg*1.25),eff=active.filter(a=>a.cost<=avg*.75);
   document.getElementById('cpp-insights').innerHTML=`
-    <div class="insight-card"><div class="i-label">Most Efficient</div><div class="i-value">${lowest?lowest.name:'—'}</div><div class="i-desc">${lowest?fmt(lowest.val)+' per policy':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">Most Efficient</div><div class="i-value">${lowest?lowest.name:'—'}</div><div class="i-desc">${lowest?fmt(lowest.cost)+' per '+label.toLowerCase()+' · '+fmtN(lowest.count)+' '+label.toLowerCase()+'s':'No data'}</div></div>
     <div class="insight-card"><div class="i-label">Team Average</div><div class="i-value">${fmt(avg)}</div><div class="i-desc">${active.length} active agents</div></div>
-    <div class="insight-card"><div class="i-label">Highest Cost</div><div class="i-value" style="color:var(--red)">${highest?highest.name:'—'}</div><div class="i-desc">${highest?fmt(highest.val)+' per policy':'No data'}</div></div>
-    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${highCost.length?'var(--red)':'var(--green)'}">${highCost.length?highCost.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${highCost.length?'Above 125% of avg':'All within range'}</div></div>
-    <div class="insight-card"><div class="i-label">${isYtd?'4+ Month Agents':'Efficient Agents'}</div><div class="i-value">${isYtd?(consistent.length?consistent.map(a=>a.name).join(', '):'None'):(active.filter(a=>a.val<=avg*0.75).map(a=>a.name).join(', ')||'None')}</div><div class="i-desc">${isYtd?'Active 4+ months':'Below 75% of avg'}</div></div>
-    <div class="insight-card"><div class="i-label">Cost Range</div><div class="i-value">${lowest&&highest?fmt(lowest.val)+' – '+fmt(highest.val):'—'}</div><div class="i-desc">Min to max spread</div></div>`;
+    <div class="insight-card"><div class="i-label">Highest Cost</div><div class="i-value" style="color:var(--red)">${highest?highest.name:'—'}</div><div class="i-desc">${highest?fmt(highest.cost)+' per '+label.toLowerCase():'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${hc.length?'var(--red)':'var(--green)'}">${hc.length?hc.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${hc.length?'Above 125% of avg':'All within range'}</div></div>
+    <div class="insight-card"><div class="i-label">Efficient Agents</div><div class="i-value">${eff.length?eff.map(a=>a.name).join(', '):'None'}</div><div class="i-desc">Below 75% of avg</div></div>
+    <div class="insight-card"><div class="i-label">Total Payout</div><div class="i-value">${fmt(totalPayout)}</div><div class="i-desc">${iy?'Jan–May YTD':MONTHS[m]+' 2026'}</div></div>`;
 }
 
-// ═══════════════ COST PER CONTACT ═══════════════
-function setCPCMonth(m){ cpcMonth=m; renderCPC(); }
+// ── COST PER CONTACT ──
+function setCPCM(m){cpcM=m;renderCPC();}
 function renderCPC(){
-  const m=cpcMonth; const isYtd=m==='ytd';
-  buildMonthBar('cpc-months',m,'setCPCMonth');
-  const exp=isYtd?ytdExp:(totalExp[m]||0);
+  const m=cpcM,iy=m==='ytd';
+  buildMBar('cpc-mbar',m,'setCPCM');
 
-  const active=cpcAgents.map(a=>{
-    const contacts=isYtd?a.c.reduce((s,v)=>s+(v||0),0):(a.c[m]||null);
-    const cost=contacts&&contacts>0&&exp>0?exp/contacts:null;
-    return{name:a.name,contacts,cost};
+  // Agency-level monthly cost per contact cards
+  const agencyCPCGrid=document.getElementById('agency-cpc-grid');
+  const activeMths=[0,1,2,3,4];
+  agencyCPCGrid.innerHTML=activeMths.map(i=>{
+    const exp=plData.totalExp[i]||0;
+    const totalC=cpcAgents.filter(a=>isLive(a.name)).reduce((s,a)=>s+(a.c[i]||0),0);
+    const cpc=exp>0&&totalC>0?exp/totalC:null;
+    return`<div class="agency-cpc-card">
+      <div class="agency-cpc-month">${MONTHS[i]}</div>
+      <div class="agency-cpc-val">${cpc?fmt(cpc):'—'}</div>
+      <div class="agency-cpc-sub">${totalC?fmtN(totalC)+' contacts':''}</div>
+    </div>`;
+  }).join('');
+
+  // per-agent section
+  const totalExp=iy?plData.totalExp.reduce((a,b)=>a+b,0):(plData.totalExp[m]||0);
+  const active=cpcAgents.filter(a=>isLive(a.name)).map(a=>{
+    const c=iy?a.c.reduce((s,v)=>s+(v||0),0):(a.c[m]||null);
+    const cost=c&&c>0&&totalExp>0?totalExp/c:null;
+    return{name:a.name,contacts:c,cost};
   }).filter(x=>x.contacts&&x.contacts>0&&x.cost!==null).sort((a,b)=>a.cost-b.cost);
 
   const avg=active.length?active.reduce((s,a)=>s+a.cost,0)/active.length:0;
-  const lowest=active[0]||null; const highest=active[active.length-1]||null;
+  const lowest=active[0]||null,highest=active[active.length-1]||null;
   const totalContacts=active.reduce((s,a)=>s+(a.contacts||0),0);
 
-  document.getElementById('cpc-k-low').textContent=lowest?fmt(lowest.cost):'—';
-  document.getElementById('cpc-k-low-name').textContent=lowest?lowest.name:'—';
-  document.getElementById('cpc-k-high').textContent=highest?fmt(highest.cost):'—';
-  document.getElementById('cpc-k-high-name').textContent=highest?highest.name:'—';
-  document.getElementById('cpc-k-avg').textContent=avg?fmt(avg):'—';
-  document.getElementById('cpc-k-avg-sub').textContent=active.length+' active agents';
-  document.getElementById('cpc-k-exp').textContent=fmt(exp);
-  document.getElementById('cpc-k-exp-sub').textContent=isYtd?'YTD total expenses':MONTHS[m]+' expenses';
-  document.getElementById('cpc-note').textContent='Formula: '+(isYtd?'YTD':'Monthly')+' Total Expenses ('+fmt(exp)+') ÷ Contacts Assigned per Agent (GHL)';
+  document.getElementById('cpc-low').textContent=lowest?fmt(lowest.cost):'—';
+  document.getElementById('cpc-low-name').textContent=lowest?lowest.name:'—';
+  document.getElementById('cpc-high').textContent=highest?fmt(highest.cost):'—';
+  document.getElementById('cpc-high-name').textContent=highest?highest.name:'—';
+  document.getElementById('cpc-avg').textContent=avg?fmt(avg):'—';
+  document.getElementById('cpc-avg-sub').textContent=active.length+' active agents';
+  document.getElementById('cpc-exp').textContent=fmt(totalExp);
+  document.getElementById('cpc-exp-sub').textContent=iy?'YTD total expenses':MONTHS[m]+' expenses';
+  document.getElementById('cpc-note').textContent='Formula: '+(iy?'YTD':'Monthly')+' Total Expenses ('+fmt(totalExp)+') ÷ Contacts Assigned per Agent (GHL)';
 
   document.getElementById('cpc-tbody').innerHTML=active.map((a,i)=>`
     <tr>
-      <td><span class="rank-badge ${rankClass(i)}">${i+1}</span></td>
+      <td><span class="rank-badge ${rkClass(i)}">${i+1}</span></td>
       <td style="font-weight:600;color:var(--text)">${a.name}</td>
       <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmtN(a.contacts)}</td>
-      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmt(exp)}</td>
-      <td class="r" style="color:${colorVal(a.cost,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.cost)}</td>
+      <td class="r" style="color:var(--text-dim);font-family:var(--font-mono)">${fmt(totalExp)}</td>
+      <td class="r" style="color:${colVal(a.cost,avg)};font-family:var(--font-mono);font-weight:600">${fmt(a.cost)}</td>
       <td class="r">${pill(a.cost,avg)}</td>
-    </tr>`).join('')||'<tr><td colspan="6" style="color:var(--text-faint);text-align:center;padding:16px">No data</td></tr>';
+    </tr>`).join('')||'<tr><td colspan="6" style="color:var(--text-faint);text-align:center;padding:16px">No data for this period</td></tr>';
 
-  const highCost=active.filter(a=>a.cost>avg*1.25);
-  const mostContacts=[...active].sort((a,b)=>b.contacts-a.contacts)[0];
+  const hc=active.filter(a=>a.cost>avg*1.25),mc=[...active].sort((a,b)=>b.contacts-a.contacts)[0];
   document.getElementById('cpc-insights').innerHTML=`
     <div class="insight-card"><div class="i-label">Most Efficient</div><div class="i-value">${lowest?lowest.name:'—'}</div><div class="i-desc">${lowest?fmt(lowest.cost)+' per contact · '+fmtN(lowest.contacts)+' contacts':'No data'}</div></div>
     <div class="insight-card"><div class="i-label">Team Average</div><div class="i-value">${fmt(avg)}</div><div class="i-desc">${active.length} agents · ${fmtN(totalContacts)} total contacts</div></div>
     <div class="insight-card"><div class="i-label">Highest Cost</div><div class="i-value" style="color:var(--red)">${highest?highest.name:'—'}</div><div class="i-desc">${highest?fmt(highest.cost)+' per contact':'No data'}</div></div>
-    <div class="insight-card"><div class="i-label">Most Contacts</div><div class="i-value">${mostContacts?mostContacts.name:'—'}</div><div class="i-desc">${mostContacts?fmtN(mostContacts.contacts)+' assigned':'No data'}</div></div>
-    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${highCost.length?'var(--red)':'var(--green)'}">${highCost.length?highCost.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${highCost.length?'Above 125% of avg':'All within range'}</div></div>
-    <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value">${fmt(exp)}</div><div class="i-desc">${isYtd?'Jan–May YTD':MONTHS[m]+' 2026'} · ${active.length} agents</div></div>`;
+    <div class="insight-card"><div class="i-label">Most Contacts</div><div class="i-value">${mc?mc.name:'—'}</div><div class="i-desc">${mc?fmtN(mc.contacts)+' assigned':'No data'}</div></div>
+    <div class="insight-card"><div class="i-label">High Cost Agents</div><div class="i-value" style="color:${hc.length?'var(--red)':'var(--green)'}">${hc.length?hc.map(a=>a.name).join(', '):'None!'}</div><div class="i-desc">${hc.length?'Above 125% of avg':'All within range'}</div></div>
+    <div class="insight-card"><div class="i-label">Total Expenses</div><div class="i-value">${fmt(totalExp)}</div><div class="i-desc">${iy?'Jan–May YTD':MONTHS[m]+' 2026'} · ${active.length} agents</div></div>`;
 }
 
-// ═══════════════ INIT — FETCH FROM GOOGLE SHEETS ═══════════════
-function showLoading(msg) {
-  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
-    const sec = document.getElementById(id);
-    if(sec) sec.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
-      <div style="font-size:28px;margin-bottom:12px">⏳</div>
-      <div style="font-family:var(--font-mono);font-size:13px;color:var(--gold)">${msg}</div>
-    </div>`;
-  });
+// ── LOAD ──
+function parseNum(v){
+  if(v===''||v===null||v===undefined||v==='-')return null;
+  if(typeof v==='number')return v;
+  const s=String(v),c=s.replace(/[$,\s]/g,'');
+  if(s.includes('(')||c.startsWith('-'))return -(Math.abs(parseFloat(c.replace(/[()]/g,'')))||0);
+  return parseFloat(c)||null;
 }
 
-function showError(msg) {
-  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
-    const sec = document.getElementById(id);
-    if(sec) sec.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
-      <div style="font-size:28px;margin-bottom:12px">⚠️</div>
-      <div style="font-family:var(--font-mono);font-size:13px;color:var(--red)">${msg}</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:8px">Check Apps Script deployment & permissions</div>
-    </div>`;
-  });
-}
-
-function parseNum(val) {
-  if (val === '' || val === null || val === undefined || val === '-') return null;
-  if (typeof val === 'number') return val;
-  const str = String(val);
-  const cleaned = str.replace(/[$,\s]/g, '');
-  if (str.includes('(') || str.startsWith('-')) return -(Math.abs(parseFloat(cleaned.replace(/[()]/g,''))) || 0);
-  return parseFloat(cleaned) || null;
-}
-
-async function loadData() {
-  showLoading('Loading data from Google Sheets...');
-  try {
-    const res = await fetch(SCRIPT_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.json();
-
-    // ── P&L ──
-    if (raw.pl) {
-      plData.rev   = raw.pl.rev   || [];
-      plData.agent = raw.pl.agent || [];
-      plData.ops   = raw.pl.ops   || [];
-      totalExp     = (raw.pl.totalExp || Array(12).fill(0)).map(v => parseNum(v) || 0);
-      ytdExp       = totalExp.reduce((a,b)=>a+b,0);
+async function loadData(){
+  try{
+    const res=await fetch(SCRIPT_URL);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const raw=await res.json();
+    if(raw.pl){
+      plData.rev      = raw.pl.rev      ||[];
+      plData.agent    = raw.pl.agent    ||[];
+      plData.revShare = raw.pl.revShare ||[];
+      plData.ops      = raw.pl.ops      ||[];
+      plData.totalExp = (raw.pl.totalExp||Array(12).fill(0)).map(v=>parseNum(v)||0);
     }
-
-    // ── Cost per Policy (Agent Deals Close) ──
-    if (raw.cpp) {
-      cppAgents = raw.cpp.map(a => ({
-        name: a.name,
-        v: (a.vals || []).slice(0,12).map(v => parseNum(v))
-      }));
-    }
-
-    // ── Cost per Contact (Agent Assigned Contacts) ──
-    if (raw.cpc) {
-      cpcAgents = raw.cpc.map(a => ({
-        name: a.name,
-        c: (a.vals || []).slice(0,12).map(v => {
-          const n = parseNum(v);
-          return (n !== null && n > 0) ? n : null;
-        })
-      }));
-    }
-
-    // restore section HTML from template
-    restoreSections();
-    renderPL(); renderCPP(); renderCPC();
-
-  } catch(err) {
+    if(raw.live) liveAgents=raw.live||[];
+    if(raw.cpp) cppPolicy=raw.cpp.map(a=>({name:a.name,vals:(a.vals||[]).slice(0,12).map(v=>parseNum(v))}));
+    if(raw.cdc) cppClient=raw.cdc.map(a=>({name:a.name,vals:(a.vals||[]).slice(0,12).map(v=>parseNum(v))}));
+    if(raw.cpc) cpcAgents=raw.cpc.map(a=>({name:a.name,c:(a.vals||[]).slice(0,12).map(v=>{const n=parseNum(v);return n&&n>0?n:null;})}));
+    renderPL();renderCPP();renderCPC();
+  }catch(err){
     console.error(err);
-    showError('Failed to load data: ' + err.message);
+    document.getElementById('main-badge').textContent='⚠️ DATA ERROR';
+    document.getElementById('main-badge').style.color='var(--red)';
   }
 }
-
-// ── store original section HTML before loading wipes it ──
-const sectionTemplates = {};
-function storeSectionTemplates() {
-  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
-    sectionTemplates[id] = document.getElementById(id).innerHTML;
-  });
-}
-function restoreSections() {
-  ['sec-pl','sec-cpp','sec-cpc'].forEach(id => {
-    if(sectionTemplates[id]) document.getElementById(id).innerHTML = sectionTemplates[id];
-  });
-}
-
-// store templates then fetch
-storeSectionTemplates();
 loadData();
-
 </script>
 </body>
 </html>
