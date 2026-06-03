@@ -24,8 +24,8 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);min-h
 .month-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
 .m-btn{padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:var(--dark3);color:var(--text-dim);font-family:var(--font-body);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
 .m-btn:hover:not(.active){border-color:var(--gold);color:var(--gold)}
-.m-btn.active{background:var(--gold);border-color:var(--gold);color:#FFFFFF;font-weight:700}
-.m-btn.ytd-btn{border-color:var(--gold-dim);color:#FFFFFF}
+.m-btn.active{background:var(--gold);border-color:var(--gold);color:var(--dark);font-weight:700}
+.m-btn.ytd-btn{border-color:var(--gold-dim);color:var(--gold)}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 .kpi-card{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden}
 .kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:.4}
@@ -71,8 +71,8 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);min-h
 .net-margin-lbl{font-size:11px;color:var(--text-dim);margin-top:3px;text-align:right;font-family:var(--font-mono)}
 .table-note{font-size:10px;color:var(--text-faint);font-style:italic;padding:7px 12px;border-top:1px solid rgba(255,255,255,.04)}
 .toggle-wrap{display:flex;gap:4px}
-.toggle-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#FFFFFF;font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all .15s}
-.toggle-btn.active{background:var(--dark);color:#FFFFFF;border-color:var(--gold)}
+.toggle-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-family:var(--font-body);font-size:11px;cursor:pointer;transition:all .15s}
+.toggle-btn.active{background:var(--dark);color:var(--gold);border-color:var(--gold)}
 .toggle-btn:hover:not(.active){color:var(--gold)}
 .agency-cpc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px}
 .agency-cpc-card{background:var(--dark4);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)}
@@ -199,7 +199,7 @@ body{background:var(--dark);color:var(--text);font-family:var(--font-body);min-h
 
 </div>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzdWfUB92u_BBNxuNUfC9vi7VZ7PHG0nnWtLi64Gcwq0EJbMepPNrqejAfiMK8KAToB/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx2BXhsn6IWQhum-xanBy7ytONwCFqmrkTG4nh5ku6A4lYk0VOpEDZ3Bs5uvfKgA5-i/exec';
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fmt=v=>'$'+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtN=v=>Math.round(v).toLocaleString('en-US');
@@ -243,11 +243,11 @@ function renderPL(){
 
   const tRev   = sumGroup(plData.rev,m);
   const tAgent = sumGroup(plData.agent,m);
-  const tRS    = sumGroup(plData.revShare,m);
+  const tRS    = sumArr(plData.totalRevShare,m);  // net rev-share retained by agency
   const tOps   = sumGroup(plData.ops,m);
-  const tExp   = tAgent+tRS+tOps;
-  const net    = tRev-tExp;
-  const margin = tRev>0?((net/tRev)*100).toFixed(1):'0';
+  const tExp   = tAgent+tOps;                     // expenses = agent payouts + ops only
+  const net    = tRev+tRS-tExp;                   // revenue + rev-share retained - expenses
+  const margin = tRev>0?((net/(tRev+tRS))*100).toFixed(1):'0';
 
   document.getElementById('pl-rev').textContent=fmt(tRev);
   document.getElementById('pl-rev-sub').textContent=iy?'5-month total':MONTHS[m]+' deposits';
@@ -256,7 +256,7 @@ function renderPL(){
   document.getElementById('pl-net').className='kpi-value '+(net>=0?'gold':'red');
   document.getElementById('pl-net-sub').textContent=margin+'% margin';
   document.getElementById('pl-revshare').textContent=(tRS<0?'-':'')+fmt(tRS);
-  document.getElementById('pl-revshare').className='kpi-value '+(tRS<=0?'blue':'red');
+  document.getElementById('pl-revshare').className='kpi-value '+(tRS>=0?'green':'red');
 
   // monthly table
   document.getElementById('pl-tbl-title').textContent=iy?'Monthly P&L':'Expense Detail — '+MONTHS[m];
@@ -264,8 +264,9 @@ function renderPL(){
   if(iy){
     tbody.innerHTML=[0,1,2,3,4].map((i,rank)=>{
       const r=sumGroup(plData.rev,i);
-      const e=sumGroup(plData.agent,i)+sumGroup(plData.revShare,i)+sumGroup(plData.ops,i);
-      const n=r-e;
+      const rs=sumArr(plData.totalRevShare,i);
+      const e=sumGroup(plData.agent,i)+sumGroup(plData.ops,i);
+      const n=r+rs-e;
       return`<tr><td><span class="rank-badge ${rkClass(rank)}">${rank+1}</span>${MONTHS[i]}</td><td class="r" style="color:var(--green);font-family:var(--font-mono)">${fmt(r)}</td><td class="r" style="color:var(--red);font-family:var(--font-mono)">${fmt(e)}</td><td class="r" style="color:${n>=0?'var(--green)':'var(--red)'};font-family:var(--font-mono);font-weight:600">${(n<0?'-':'')+fmt(n)}</td></tr>`;
     }).join('');
   } else {
@@ -277,21 +278,25 @@ function renderPL(){
   document.getElementById('pl-detail-col').textContent=iy?'YTD Total':MONTHS[m];
   let html='';
   const sections=[
-    {title:'REVENUE',items:plData.rev,total:tRev,color:'var(--green)'},
+    {title:'REVENUE (Chase Deposits)',items:plData.rev,total:tRev,color:'var(--green)'},
+    {title:'REV-SHARE RETAINED (Agency Income)',items:plData.revShare,total:tRS,color:'var(--blue)',note:true},
     {title:'AGENT PAYOUTS',items:plData.agent,total:tAgent,color:'var(--red)'},
-    {title:'REV-SHARE PAYMENTS',items:plData.revShare,total:tRS,color:'var(--blue)'},
     {title:'OPERATING EXPENSES',items:plData.ops,total:tOps,color:'var(--red)'},
   ];
-  sections.forEach(({title,items,total,color})=>{
+  sections.forEach(({title,items,total,color,note})=>{
     html+=`<tr class="sec-row"><td colspan="2">${title}</td></tr>`;
     items.forEach(item=>{
       const v=sumArr(item.v,m);
       if(v===0)return;
-      html+=`<tr><td style="padding-left:20px;color:var(--text-dim)">${item.l}</td><td class="r" style="font-family:var(--font-mono);color:${v<0?'var(--blue)':'var(--text)'}">${v<0?'-':''} ${fmt(v)}</td></tr>`;
+      html+=`<tr><td style="padding-left:20px;color:var(--text-dim)">${item.l}</td><td class="r" style="font-family:var(--font-mono);color:${v<0?'var(--red)':'var(--text)'}">${v<0?'-':''} ${fmt(v)}</td></tr>`;
     });
     html+=`<tr><td style="font-weight:600;color:${color};padding-left:8px">Subtotal</td><td class="r" style="font-family:var(--font-mono);font-weight:700;color:${color}">${total<0?'-':''} ${fmt(total)}</td></tr>`;
     html+=`<tr><td colspan="2" style="height:3px;background:var(--dark4)"></td></tr>`;
   });
+  // total expenses row
+  html+=`<tr><td style="font-weight:600;color:var(--red);padding-left:8px">TOTAL ALL EXPENSES</td><td class="r" style="font-family:var(--font-mono);font-weight:700;color:var(--red)">${fmt(tExp)}</td></tr>`;
+  html+=`<tr><td colspan="2" style="height:3px;background:var(--dark4)"></td></tr>`;
+  // net row
   html+=`<tr style="background:var(--dark2)"><td style="font-weight:700;color:${net>=0?'var(--green)':'var(--red)'};font-family:var(--font-display);font-size:13px;letter-spacing:1px">NET PROFIT / LOSS</td><td class="r" style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:${net>=0?'var(--green)':'var(--red)'}">${net<0?'-':''} ${fmt(net)}</td></tr>`;
   document.getElementById('pl-detail-tbody').innerHTML=html;
 
@@ -309,9 +314,9 @@ function renderPL(){
     </div>`).join('')||'<p style="color:var(--text-faint);font-size:11px">No data</p>';
 
   // insights
-  const bNM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.revShare,i)-sumGroup(plData.ops,i);return n>b.n?{i,n}:b},{i:0,n:-Infinity});
+  const bNM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)+sumArr(plData.totalRevShare,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n>b.n?{i,n}:b},{i:0,n:-Infinity});
   const bRM=[0,1,2,3,4].reduce((b,i)=>{const r=sumGroup(plData.rev,i);return r>b.r?{i,r}:b},{i:0,r:-Infinity});
-  const wM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)-sumGroup(plData.agent,i)-sumGroup(plData.revShare,i)-sumGroup(plData.ops,i);return n<b.n?{i,n}:b},{i:0,n:Infinity});
+  const wM=[0,1,2,3,4].reduce((b,i)=>{const n=sumGroup(plData.rev,i)+sumArr(plData.totalRevShare,i)-sumGroup(plData.agent,i)-sumGroup(plData.ops,i);return n<b.n?{i,n}:b},{i:0,n:Infinity});
   const topO=allItems[0]||{l:'—',v:0};
 
   document.getElementById('pl-insights').innerHTML=iy?`
@@ -467,11 +472,12 @@ async function loadData(){
     if(!res.ok)throw new Error('HTTP '+res.status);
     const raw=await res.json();
     if(raw.pl){
-      plData.rev      = raw.pl.rev      ||[];
-      plData.agent    = raw.pl.agent    ||[];
-      plData.revShare = raw.pl.revShare ||[];
-      plData.ops      = raw.pl.ops      ||[];
-      plData.totalExp = (raw.pl.totalExp||Array(12).fill(0)).map(v=>parseNum(v)||0);
+      plData.rev          = raw.pl.rev          ||[];
+      plData.agent        = raw.pl.agent        ||[];
+      plData.revShare     = raw.pl.revShare     ||[];
+      plData.ops          = raw.pl.ops          ||[];
+      plData.totalRevShare= raw.pl.totalRevShare||Array(12).fill(0);
+      plData.totalExp     = (raw.pl.totalExp    ||Array(12).fill(0)).map(v=>parseNum(v)||0);
     }
     if(raw.live) liveAgents=raw.live||[];
     if(raw.cpp) cppPolicy=raw.cpp.map(a=>({name:a.name,vals:(a.vals||[]).slice(0,12).map(v=>parseNum(v))}));
